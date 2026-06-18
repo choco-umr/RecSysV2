@@ -1,11 +1,10 @@
 from Schemas.schemas import User_Register_Input, LoginInputSchema
 from Database.models import Users
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from Security.security import hash_password, generate_userid, verify_password
+from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, verify_jwt_token
 from Database.db import get_db
-
 UserRouter = APIRouter(prefix='/UserRoutes')
 
 @UserRouter.post("/register")
@@ -44,13 +43,32 @@ async def Login(LoginInput: LoginInputSchema, db: Session = Depends(get_db)):
 
     if verify_password(user.PASSWORD, LoginInput.Password):
         print("password correct")
-        return {"message": "Success"}
+        access_token = create_jwt_token(str(user.USER_ID), str(user.USER_TYPE))
+        print("acess token created", access_token)
+        response = Response(content="Login successful")
+        response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,   # HTTPS only in production
+        samesite="lax"
+        )
+
+        return response
     else:
         raise HTTPException(status_code=401, detail="wrong password err unauth ")
-    #jwt code
 
 
-
+@UserRouter.post("/user_jwt_data_test")
+async def test_jwt_user_relative_data(request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get("access_token")
+    decode_token = verify_jwt_token(token)
+    print("TOKEN RETRIEVED and decoded", decode_token)
+    print("user idddddd", decode_token["USER_ID"])
+    return decode_token
+    
+    #generate s jwt token wiht the users UserID and UserType
+    #redirect to relevant dashboard function
 
 
 #notes
