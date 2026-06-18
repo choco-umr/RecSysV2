@@ -21,4 +21,3 @@ def generate_userid():
     id = uuid.uuid4()
     return id
 
-verify_password("$argon2id$v=19$m=19456,t=2,p=1$ZYUSmPFaq8ReAJ44qzXQjw$6Ud046c4jrZjpxOOwWEQ0JpT304E3ihmpyPXlitMYbs", "Us1910011.")
