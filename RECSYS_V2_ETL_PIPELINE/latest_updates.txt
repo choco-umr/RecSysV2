@@ -1,0 +1,7 @@
+we have created most steps for the etl pipelie
+we cannot coninruw with it until databse models are created as the code we wil write we wneed ot call the models etc
+
+deplication is directly calling each db
+user deriving we need sql model to upload
+schema validation and preproeccing is done
+file checks need supbase link to finish coding

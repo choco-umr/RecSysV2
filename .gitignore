@@ -1,0 +1,8 @@
+RECSYS_V2_ETL_PIPELINE/Data/
+RECSYS_V2_API/alembic
+RECSYS_V2_API/alembic.ini
+RECSYS_V2_API/config.py
+RECSYS_V2_API/.env
+DIAGRAMS/
+**/__pycache__
+**/*.pyc
