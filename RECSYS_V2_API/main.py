@@ -2,6 +2,7 @@ from Database.db import init_db
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from Routes.UserRoutes import UserRouter
+from Routes.TestingRoutes import TestingRouter
 
 
 #initialise the db on startup
@@ -12,7 +13,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(UserRouter, prefix="/api")
+app.include_router(UserRouter, prefix="/api", tags=["Users"])
+app.include_router(TestingRouter, prefix="/api", tags=["Testing"])
 
 
 

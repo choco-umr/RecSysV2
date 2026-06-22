@@ -1,9 +1,9 @@
 from Schemas.schemas import User_Register_Input, LoginInputSchema
 from Database.models import Users
-from fastapi import Depends, APIRouter, HTTPException, Response, Request
+from fastapi import Depends, APIRouter, HTTPException, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, verify_jwt_token
+from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies
 from Database.db import get_db
 UserRouter = APIRouter(prefix='/UserRoutes')
 
@@ -15,7 +15,7 @@ async def Register(User: User_Register_Input, db: Session = Depends(get_db)):
 
     new_user = Users(
         USER_ID = GenerateduserID,
-        USER_TYPE = "User", #excluded from schema, User can only be Normal user not researcher
+        USER_TYPE = "User", #excluded from schema, User can only be Normal user not researcher ?
         FIRST_NAME=User.Firstname,
         LAST_NAME=User.Lastname,
         USERNAME=User.Username,
@@ -39,7 +39,9 @@ async def Login(LoginInput: LoginInputSchema, db: Session = Depends(get_db)):
 
     UsernameExtract = select(Users).where(Users.USERNAME == LoginInput.Username)
 
-    user = db.scalars(UsernameExtract).first() #if empty means username doesnt exist
+    user = db.scalars(UsernameExtract).first() #if empty means need to catch if empty or err, username doesnt exist
+
+    #check if already logged in
 
     if verify_password(user.PASSWORD, LoginInput.Password):
         print("password correct")
@@ -58,17 +60,9 @@ async def Login(LoginInput: LoginInputSchema, db: Session = Depends(get_db)):
     else:
         raise HTTPException(status_code=401, detail="wrong password err unauth ")
 
-
-@UserRouter.post("/user_jwt_data_test")
-async def test_jwt_user_relative_data(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token")
-    decode_token = verify_jwt_token(token)
-    print("TOKEN RETRIEVED and decoded", decode_token)
-    print("user idddddd", decode_token["USER_ID"])
-    return decode_token
-    
-    #generate s jwt token wiht the users UserID and UserType
-    #redirect to relevant dashboard function
+@UserRouter.post("/Logout")
+async def Logout(response: Response):
+    logout_delete_all_cookies(response)
 
 
 #notes
