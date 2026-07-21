@@ -4,8 +4,9 @@ import uuid
 import jwt
 import datetime
 from sqlalchemy import select
-from Database.models import Users
-
+from Database.models import Users, Researchers, Admins
+from fastapi import HTTPException
+from exceptions import JWTNotFound
 ph = PasswordHasher(memory_cost=int(MEMORY_COST),time_cost=int(TIME_COST),parallelism=int(PARALLELISM)) #according to owasp cheat sheet https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
 
 def hash_password(plain_text_password):
@@ -21,49 +22,52 @@ def verify_password(hashed_password, plain_text_password):
 
 def create_jwt_token(USER_ID, USER_TYPE):
     JWT_EXPIRY_TIME = datetime.datetime.now() + datetime.timedelta(minutes=int(EXPIRY_TIME))
-
     encoded = jwt.encode({"USER_ID": USER_ID, "USER_TYPE": USER_TYPE, "exp": JWT_EXPIRY_TIME}, SECRET_KEY, algorithm=ALGORITHM)
     return encoded
 
-#veryify jwt and get role acess
-def verify_jwt_token(jwt_key,db):
 
+#verifies JWT Token and returns user type
+def RBAC(request, db):
+
+    #hecking for valid JWT
+    token = request.cookies.get("access_token")
+    if not token:
+            raise JWTNotFound()
+    
     try:
-        result = jwt.decode(jwt_key, SECRET_KEY, algorithms=ALGORITHM)
-        User_ID_extracted = result["USER_ID"]
-        USER_TYPE_extracted = result["USER_TYPE"]
+        result = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        user_id = result["USER_ID"]
+        user_type = result["USER_TYPE"]
 
-        UserExtract = (
-        select(Users).where(Users.USER_ID == User_ID_extracted).where(Users.USER_TYPE == USER_TYPE_extracted).exists()
-        )
+        for table in (Users, Researchers, Admins):
+            exists_flag = db.execute(
+                select(
+                    select(table)
+                    .where(table.USER_ID == user_id)
+                    .where(table.USER_TYPE == user_type)
+                    .exists()
+                )
+            ).scalar()
+            #if the username from the jwt exists we return True alongside user_type
+            if exists_flag:
+                return True, user_type
+        
+        return False, None
+    
+    #to accept the many possible PyJWT jwt exceptions here - https://pyjwt.readthedocs.io/en/stable/api.html hence no specific HTTPexception
+    except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=str(e)
+            )
 
-        final_result = db.execute(select(UserExtract))
-        exists_flag = final_result.scalar()
 
-        if exists_flag:
-            return USER_TYPE_extracted #either user or researcher
-        else:
-            #try admin table for later
-            print("s")
+ 
 
-
-    except jwt.ExpiredSignatureError:
-        raise Exception("expired token")
-    except jwt.InvalidTokenError:
-        raise Exception("Invalid token")
 
 def logout_delete_all_cookies(response):
     response.delete_cookie(key="access_token")
 
-    
-
-
-
-
 def generate_userid():
     id = uuid.uuid4()
     return id
-#id dupe verification
-
-
-#try to undrstand the jwt secret key algorthm log cna bi beter eveyrhting else we know payload how to create decode extract data from it etc
