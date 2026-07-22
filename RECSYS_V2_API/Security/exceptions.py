@@ -41,4 +41,9 @@ class JWTNotFound(HTTPException):
     def __init__(self):
         HTTPException.__init__(self, status_code=401, detail="JWT Token not found")
 
+#JWT Already existing (cannot login when already logged in etc)
+class JWTFound(HTTPException):
+    def __init__(self):
+        HTTPException.__init__(self, status_code=409, detail="Existing JWT found")
+
 ####################### Aliens ####################### 

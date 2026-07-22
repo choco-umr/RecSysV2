@@ -6,7 +6,7 @@ import datetime
 from sqlalchemy import select
 from Database.models import Users, Researchers, Admins
 from fastapi import HTTPException
-from exceptions import JWTNotFound
+from .exceptions import *
 ph = PasswordHasher(memory_cost=int(MEMORY_COST),time_cost=int(TIME_COST),parallelism=int(PARALLELISM)) #according to owasp cheat sheet https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
 
 def hash_password(plain_text_password):
@@ -50,8 +50,8 @@ def RBAC(request, db):
             ).scalar()
             #if the username from the jwt exists we return True alongside user_type
             if exists_flag:
-                return True, user_type
-        
+                return user_type
+
         return False, None
     
     #to accept the many possible PyJWT jwt exceptions here - https://pyjwt.readthedocs.io/en/stable/api.html hence no specific HTTPexception
@@ -62,8 +62,13 @@ def RBAC(request, db):
             )
 
 
- 
-
+def check_existing_jwt_token(request):
+     #checking if user is already logged in
+    token = request.cookies.get("access_token")
+    if token:
+            raise JWTFound()
+     
+    
 
 def logout_delete_all_cookies(response):
     response.delete_cookie(key="access_token")

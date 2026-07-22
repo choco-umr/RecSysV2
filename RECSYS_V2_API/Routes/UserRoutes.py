@@ -7,12 +7,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies
 from Database.db import get_db
+
 UserRouter = APIRouter(prefix='/UserRoutes')
 
 @UserRouter.post("/register")
 async def Register(User: User_Register_Input, db: Session = Depends(get_db)):
 
-    DupeUsernameCheck = select(Users).where(Users.USERNAME == User_Register_Input.Username)
+    DupeUsernameCheck = db.execute(
+        select(Users).where(Users.USERNAME == User.Username)
+    ).scalar_one_or_none()
+    
     if DupeUsernameCheck is not None:
         raise HTTPException(
                 status_code=409,
