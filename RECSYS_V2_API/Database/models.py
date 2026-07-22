@@ -29,6 +29,7 @@ class Users(Base):
 
 
 class Researchers(Base):
+    __tablename__ = "Researchers"
     USER_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     USER_TYPE = Column("USER_TYPE", String, nullable=False)
     FIRST_NAME = Column("FIRST_NAME", String, nullable=False)
@@ -44,6 +45,7 @@ class Researchers(Base):
 
 
 class Admins(Base):
+    __tablename__ = "Admins"
     USER_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     USER_TYPE = Column("USER_TYPE", String, nullable=False)
     FIRST_NAME = Column("FIRST_NAME", String, nullable=False)
