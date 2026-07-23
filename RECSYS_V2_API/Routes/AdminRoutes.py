@@ -1,13 +1,13 @@
 from streamlit import error, user
 
-from Schemas.schemas import AdminResearcher_Register_Input,Admin_Register_Input
+from Schemas.schemas import AdminResearcher_Register_Input,Admin_Register_Input, AdminDeleteUser_Input
 from Database.models import Users, Researchers, Admins
 from fastapi import Depends, APIRouter, HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies, RBAC
 from Database.db import get_db
-from Security.exceptions import UserNotAuthorized
+from Security.exceptions import UserNotAuthorized, UserNotFound
 
 AdminRouter = APIRouter(prefix='/AdminRoutes')
 
@@ -49,11 +49,10 @@ async def AdminRegister(request: Request, User: Admin_Register_Input, db: Sessio
         return new_user
 
 #register researchers
-@AdminRouter.post("/AdminResearcherRegister")
+@AdminRouter.post("/ResearcherRegister")
 async def AdminResearcherRegister(request: Request, User: AdminResearcher_Register_Input, db: Session = Depends(get_db)):
 
-    user_type = RBAC(request, db)
-    print("user type retunr is", user_type)
+    user_type = RBAC(request, db) 
     if user_type != "Admin":
         raise UserNotAuthorized()
 
@@ -84,6 +83,33 @@ async def AdminResearcherRegister(request: Request, User: AdminResearcher_Regist
         db.refresh(new_user)
 
         return new_user
+
+#Delete any user
+#register researchers
+@AdminRouter.post("/DeleteUser")
+async def DeleteUser(request: Request, User: AdminDeleteUser_Input, db: Session = Depends(get_db)):
+
+    user_type = RBAC(request, db) 
+    if user_type != "Admins":
+        raise UserNotAuthorized()
+
+
+    user = None
+    for table in (Users, Researchers, Admins):
+        stmt = select(table).where(table.USERNAME == User.Username)
+        found = db.scalars(stmt).first()
+
+        if found:
+            user = found
+            break
+
+    if not user:
+        raise UserNotFound()
+
+    db.delete(user)
+    db.commit()
+    return {"detail": "User deleted successfully"}
+
 
 
 

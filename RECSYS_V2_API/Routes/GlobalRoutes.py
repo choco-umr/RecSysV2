@@ -23,7 +23,7 @@ async def Login(request: Request, LoginInput: LoginInputSchema, db: Session = De
         #if username exists then check password
         if user:
             if verify_password(user.PASSWORD, LoginInput.Password):
-                access_token = create_jwt_token(str(user.USER_ID), str(user.USER_TYPE))
+                access_token = create_jwt_token(str(user.USER_ID))
                 response = Response(content="Login successful")
                 response.set_cookie( key="access_token",value=access_token,httponly=True,secure=True)
                 return response

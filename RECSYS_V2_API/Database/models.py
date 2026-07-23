@@ -1,66 +1,71 @@
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Float
 from Database.db import Base
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 import uuid
 
 class Users(Base):
     __tablename__ = "Users"
     USER_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    USER_TYPE = Column("USER_TYPE", String, nullable=False)
     FIRST_NAME = Column("FIRST_NAME", String, nullable=False)
     LAST_NAME = Column("LAST_NAME", String, nullable=False)
     USERNAME = Column("USERNAME", String, nullable=False)
     PASSWORD = Column("PASSWORD", String)
-    GENDER = Column("GENDER",String, nullable=False) #need to make it enum?
+    GENDER = Column("GENDER",Integer, nullable=False) #need to make it enum?
     AGE = Column("AGE", Integer) #add validation for between 1-100
-
-    @validates("USER_TYPE")
-    def validate_USER_TYPE(self, key, USER_TYPE):
-        if USER_TYPE != "User":
-            raise ValueError("Invalid user type")
-        return USER_TYPE
     
     @validates("GENDER")
-    def validate_USER_TYPE(self, key, GENDER):
-        if GENDER not in ("Male", "Female"):
+    def validate_GENDER(self, key, GENDER):
+        if GENDER not in (1, 2):
             raise ValueError("Invalid gender type")
         return GENDER
-
 
 class Researchers(Base):
     __tablename__ = "Researchers"
     USER_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    USER_TYPE = Column("USER_TYPE", String, nullable=False)
     FIRST_NAME = Column("FIRST_NAME", String, nullable=False)
     LAST_NAME = Column("LAST_NAME", String, nullable=False)
     USERNAME = Column("USERNAME", String, nullable=False)
     PASSWORD = Column("PASSWORD", String)
-
-    @validates("USER_TYPE")
-    def validate_USER_TYPE(self, key, USER_TYPE):
-        if USER_TYPE != "Researcher":
-            raise ValueError("Invalid user type")
-        return USER_TYPE
-
 
 class Admins(Base):
     __tablename__ = "Admins"
     USER_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    USER_TYPE = Column("USER_TYPE", String, nullable=False)
     FIRST_NAME = Column("FIRST_NAME", String, nullable=False)
     LAST_NAME = Column("LAST_NAME", String, nullable=False)
     USERNAME = Column("USERNAME", String, nullable=False)
     PASSWORD = Column("PASSWORD", String)
 
-    @validates("USER_TYPE")
-    def validate_USER_TYPE(self, key, USER_TYPE):
-        if USER_TYPE != "Admin":
-            raise ValueError("Invalid user type")
-        return USER_TYPE
+class Content(Base):
+    __tablename__ = "Content"
+    ITEM_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    DATASET_NAME = Column(String, nullable=True)
+    TITLE = Column(String, nullable=False)
+    CATEGORY = Column(String)
+    SUBCATEGORY = Column(String)
+    ABSTRACT = Column(String)
+    TIME_PUBLISHED = Column(DateTime)
+    ARTICLE_TYPE = Column(String)
+ 
+ 
+class Interactions(Base):
+    __tablename__ = "Interactions"
+    INTERACTION_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
+    # Removed FK relationships for now - researchers can upload interaction
+    # datasets from external sources, and those datasets reference users and
+    # content items that don't exist in our own Users/Content tables (discuss wiht tom about derived users coming). A hard
+    # FK constraint would reject those inserts outright, since Postgres
+    # requires the referenced row to exist. Left as plain UUID columns until
+    # we decide on the right long-term approach (likely separate real-FK vs
+    # external-reference columns, gated by DATASET_NAME).
+    USER_ID = Column(UUID(as_uuid=True), nullable=False)
+    ITEM_ID = Column(UUID(as_uuid=True), nullable=False)
 
+    DATETIME = Column(DateTime)
+    INTERACTION_TYPE = Column(String, nullable=False)
+    READ_TIME = Column(Float)
+    SCROLL_PERCENTAGE = Column(Float)
 
 #TO/DO
 #global password strength function - https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
-#duplicate username check function

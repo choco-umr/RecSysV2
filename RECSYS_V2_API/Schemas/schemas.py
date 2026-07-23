@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, StrictStr, StrictInt, field_validator
+from pydantic import BaseModel, Field, StrictStr, StrictInt, field_validator, model_validator
 from typing import Literal
 from uuid import UUID
 from string import punctuation
@@ -7,7 +7,7 @@ from string import punctuation
 class User_Register_Input(BaseModel):
     Firstname: str = Field(default='John', min_length=2, max_length=10)
     Lastname: str = Field(default='Doe', min_length=2, max_length=10)
-    Username: str = Field(min_length=2, max_length=10) # need to be unique  - add check
+    Username: str = Field(min_length=2, max_length=25) # need to be unique  - add check
     Password: str = Field(min_length=5, max_length=10) 
     Gender: Literal["Male", "Female"]
     Age: int = Field(ge=10, le=100)
@@ -68,6 +68,16 @@ class Admin_Register_Input(BaseModel):
         
         return password
 
+
+class AdminDeleteUser_Input(BaseModel):
+    Username: str = Field(min_length=2, max_length=25) # need to be unique  - add check
+    Usernameconfirm: str = Field(min_length=2, max_length=25) # need to be unique  - add check
+
+    @model_validator(mode="after")
+    def usernames_must_match(self):
+        if self.Username != self.Usernameconfirm:
+            raise ValueError("Both usernames must match")
+        return self
 
     
 #notes

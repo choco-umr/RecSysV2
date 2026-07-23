@@ -20,13 +20,13 @@ def verify_password(hashed_password, plain_text_password):
     except Exception:
         return False
 
-def create_jwt_token(USER_ID, USER_TYPE):
+def create_jwt_token(USER_ID):
     JWT_EXPIRY_TIME = datetime.datetime.now() + datetime.timedelta(minutes=int(EXPIRY_TIME))
-    encoded = jwt.encode({"USER_ID": USER_ID, "USER_TYPE": USER_TYPE, "exp": JWT_EXPIRY_TIME}, SECRET_KEY, algorithm=ALGORITHM)
+    encoded = jwt.encode({"USER_ID": USER_ID, "exp": JWT_EXPIRY_TIME}, SECRET_KEY, algorithm=ALGORITHM)
     return encoded
 
 
-#verifies JWT Token and returns user type
+#verifies JWT Token and returns table name from where user is found
 def RBAC(request, db):
 
     #hecking for valid JWT
@@ -35,24 +35,22 @@ def RBAC(request, db):
             raise JWTNotFound()
     
     try:
-        result = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        result = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = result["USER_ID"]
-        user_type = result["USER_TYPE"]
 
         for table in (Users, Researchers, Admins):
             exists_flag = db.execute(
                 select(
                     select(table)
                     .where(table.USER_ID == user_id)
-                    .where(table.USER_TYPE == user_type)
                     .exists()
                 )
             ).scalar()
-            #if the username from the jwt exists we return True alongside user_type
+            #return table name where user is found
             if exists_flag:
-                return user_type
+                return table.__name__
 
-        return False, None
+        raise UserNotFound()
     
     #to accept the many possible PyJWT jwt exceptions here - https://pyjwt.readthedocs.io/en/stable/api.html hence no specific HTTPexception
     except Exception as e:

@@ -46,4 +46,9 @@ class JWTFound(HTTPException):
     def __init__(self):
         HTTPException.__init__(self, status_code=409, detail="Existing JWT found")
 
+#user not found
+class UserNotFound(HTTPException):
+    def __init__(self):
+        HTTPException.__init__(self, status_code=404, detail="User not found")
+
 ####################### Aliens ####################### 
