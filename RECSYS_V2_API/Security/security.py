@@ -8,6 +8,7 @@ from Database.models import Users, Researchers, Admins
 from fastapi import HTTPException
 from .exceptions import *
 ph = PasswordHasher(memory_cost=int(MEMORY_COST),time_cost=int(TIME_COST),parallelism=int(PARALLELISM)) #according to owasp cheat sheet https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+from fastapi import UploadFile
 
 def hash_password(plain_text_password):
     hashed_password = ph.hash(plain_text_password) #by default uses argon2id
@@ -65,7 +66,6 @@ def check_existing_jwt_token(request):
     token = request.cookies.get("access_token")
     if token:
             raise JWTFound()
-     
     
 
 def logout_delete_all_cookies(response):
@@ -74,3 +74,22 @@ def logout_delete_all_cookies(response):
 def generate_userid():
     id = uuid.uuid4()
     return id
+
+
+def FileValidator(file: UploadFile,max_size_bytes: int = 2 * 1024 * 1024 * 1024) -> None: #2gb
+    
+    if not file.filename:
+        raise HTTPException(
+            status_code=422,
+            detail="Filename is required."
+        )
+
+    if not file.filename.lower().endswith(".csv"):
+        raise InvalidFiletype()
+
+    file.file.seek(0, 2)  # move to end
+    file_size = file.file.tell()
+    file.file.seek(0)
+
+    if file_size > max_size_bytes:
+        raise InvalidFilesize()

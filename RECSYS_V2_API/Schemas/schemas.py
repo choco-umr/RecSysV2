@@ -79,6 +79,18 @@ class AdminDeleteUser_Input(BaseModel):
             raise ValueError("Both usernames must match")
         return self
 
+class DatasetInputSchema(BaseModel):
+    #datatset type
+    DatasetType: str
+
+    @model_validator(mode="after")
+    def valid_dataset_type(self):
+        if self.DatasetType.title() not in ["Interactions", "Content", "Derived_Users"]: #are we including derived users (after tom meeting)
+            raise ValueError("Invalid dataset type")
+        return self
+
+
+
     
 #notes
 #ensure uuid is unique (0.001% can de dupe so check error handling)

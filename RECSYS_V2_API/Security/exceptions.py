@@ -51,4 +51,21 @@ class UserNotFound(HTTPException):
     def __init__(self):
         HTTPException.__init__(self, status_code=404, detail="User not found")
 
+#Invalid Dataset Type
+class InvalidDatasetType(HTTPException):
+    def __init__(self):
+        HTTPException.__init__(self, status_code=422, detail="Invalid dataset type")
+
+#Invalid File type
+class InvalidDatasetType(HTTPException):
+    def __init__(self):
+        HTTPException.__init__(self, status_code=422, detail="Invalid dataset type")
 ####################### Aliens ####################### 
+
+class InvalidFiletype(HTTPException):
+    def __init__(self):
+        HTTPException.__init__(self, status_code=422, detail="Invalid file type")
+
+class InvalidFilesize(HTTPException):
+    def __init__(self):
+        HTTPException.__init__(self, status_code=422, detail="File too large")
