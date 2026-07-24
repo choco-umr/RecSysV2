@@ -5,7 +5,7 @@ from Database.models import Users, Researchers, Admins, Content, Dataset_Upload_
 from fastapi import Depends, APIRouter, HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies, RBAC
+from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies, RBAC, FileValidator
 from Database.db import get_db
 from Security.exceptions import UserNotAuthorized, InvalidFiletype
 from Security.security import FileValidator
@@ -24,9 +24,14 @@ async def DatasetUpload(request: Request, file: UploadFile = File(...), DatasetI
     #1. to dataset upload tracking with metadata
     #2. the data to the supabase storage
 
-    user_type, user_id = RBAC(request, db) = RBAC(request, db) 
+    user_type, user_id = RBAC(request, db)
     if user_type != "Researchers":
         raise UserNotAuthorized()
+    
+    #to/do
+    #pass file into securities FileValidator
+    # rename file to something
+    #upload file to supbase storage
 
     track_dataset = Dataset_Upload_Tracking(
         FILENAME=file.filename,

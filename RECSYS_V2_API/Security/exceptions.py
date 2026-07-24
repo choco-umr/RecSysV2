@@ -69,3 +69,7 @@ class InvalidFiletype(HTTPException):
 class InvalidFilesize(HTTPException):
     def __init__(self):
         HTTPException.__init__(self, status_code=422, detail="File too large")
+
+class FilenameRequired(HTTPException):
+    def __init__(self):
+        HTTPException.__init__(self, status_code=422, detail="Filename required")

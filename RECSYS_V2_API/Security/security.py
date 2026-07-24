@@ -81,15 +81,15 @@ def generate_userid():
 
 def FileValidator(file: UploadFile,max_size_bytes: int = 2 * 1024 * 1024 * 1024) -> None: #2gb
     
+    #filename check
     if not file.filename:
-        raise HTTPException(
-            status_code=422,
-            detail="Filename is required."
-        )
-
+        raise FilenameRequired()
+    
+    #filetype check
     if not file.filename.lower().endswith(".csv"):
         raise InvalidFiletype()
 
+    #file size check
     file.file.seek(0, 2)  # move to end
     file_size = file.file.tell()
     file.file.seek(0)
