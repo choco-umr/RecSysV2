@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Float
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Float, BigInteger
 from Database.db import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates, relationship
@@ -47,7 +47,20 @@ class Content(Base):
     TIME_PUBLISHED = Column(DateTime)
     ARTICLE_TYPE = Column(String)
  
- 
+class Dataset_Upload_Tracking(Base):
+    __tablename__ = "Dataset_Upload_Tracking"
+
+    UPLOAD_ID = Column(UUID)
+    FILENAME = Column(String)
+    DATASET_TYPE = Column(String)
+    UPLOADED_BY_USER_ID = Column(UUID)
+    UPLOADED_AT = Column(DateTime(timezone=True))
+    FILE_SIZE = Column(BigInteger) #FIX THIS
+    ROW_COUNT = Column(Integer, nullable=True)
+    UPLOAD_STATUS = Column(String)  # Uploaded or Failed
+
+
+
 class Interactions(Base):
     __tablename__ = "Interactions"
     INTERACTION_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

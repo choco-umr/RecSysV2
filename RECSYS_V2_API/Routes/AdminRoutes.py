@@ -15,9 +15,8 @@ AdminRouter = APIRouter(prefix='/AdminRoutes')
 @AdminRouter.post("/AdminRegister")
 async def AdminRegister(request: Request, User: Admin_Register_Input, db: Session = Depends(get_db)):
 
-    user_type = RBAC(request, db)
-    print("user type retunr is", user_type)
-    if user_type != "Admin":
+    user_type, user_id = RBAC(request, db) = RBAC(request, db) 
+    if user_type != "Admins":
         raise UserNotAuthorized()
 
     DupeUsernameCheck = db.execute(
@@ -52,8 +51,8 @@ async def AdminRegister(request: Request, User: Admin_Register_Input, db: Sessio
 @AdminRouter.post("/ResearcherRegister")
 async def AdminResearcherRegister(request: Request, User: AdminResearcher_Register_Input, db: Session = Depends(get_db)):
 
-    user_type = RBAC(request, db) 
-    if user_type != "Admin":
+    user_type, user_id = RBAC(request, db) = RBAC(request, db) 
+    if user_type != "Admins":
         raise UserNotAuthorized()
 
     DupeUsernameCheck = db.execute(
@@ -89,7 +88,7 @@ async def AdminResearcherRegister(request: Request, User: AdminResearcher_Regist
 @AdminRouter.post("/DeleteUser")
 async def DeleteUser(request: Request, User: AdminDeleteUser_Input, db: Session = Depends(get_db)):
 
-    user_type = RBAC(request, db) 
+    user_type, user_id = RBAC(request, db) = RBAC(request, db) 
     if user_type != "Admins":
         raise UserNotAuthorized()
 

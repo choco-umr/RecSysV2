@@ -1,7 +1,7 @@
 from streamlit import error, user
 
 from Schemas.schemas import AdminResearcher_Register_Input,Admin_Register_Input, DatasetInputSchema
-from Database.models import Users, Researchers, Admins
+from Database.models import Users, Researchers, Admins, Content, Dataset_Upload_Tracking
 from fastapi import Depends, APIRouter, HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import select
@@ -11,48 +11,32 @@ from Security.exceptions import UserNotAuthorized, InvalidFiletype
 from Security.security import FileValidator
 from fastapi import FastAPI, File, UploadFile, File, Form, UploadFile
 from typing import Annotated
-
+import datetime
 
 ResearcherRouter = APIRouter(prefix='/ResearcherRoutes')
 
 
-#datasetupload
-#researcher passes in dataset type alongside data matching the relevant dataset schema which starts the pipeline
-
-
-from typing import Annotated
-from fastapi import APIRouter, Depends, File, Form, UploadFile
-from pydantic import BaseModel, field_validator
-from sqlalchemy.orm import Session
-
-class DatasetInputSchema(BaseModel):
-    DatasetType: str
-
-    @field_validator("DatasetType")
-    @classmethod
-    def validate_dataset_type(cls, value: str) -> str:
-        valid_types = {
-            "interactions",
-            "content",
-            "derived_users",
-            "video",
-        }
-
-        if value.lower() not in valid_types:
-            raise ValueError(
-                f"DatasetType must be one of: {', '.join(valid_types)}"
-            )
-
-        return value
-
-    @classmethod
-    def as_form(
-        cls,
-        DatasetType: str = Form(...),
-    ):
-        return cls(DatasetType=DatasetType)
-
-
 @ResearcherRouter.post("/DatasetUpload")
-async def DatasetUpload(file: UploadFile = File(...), DatasetInput: DatasetInputSchema = Depends(DatasetInputSchema.as_form),db: Session = Depends(get_db),):
-    FileValidator(file=file,max_size_bytes=5 * 1024 * 1024 * 1024)  # file vaidator
+async def DatasetUpload(request: Request, file: UploadFile = File(...), DatasetInput: DatasetInputSchema = Depends(DatasetInputSchema.as_form),db: Session = Depends(get_db),):
+    FileValidator(file=file,max_size_bytes=5 * 1024 * 1024 * 1024)  # file validator
+
+    #once checks passed we need 2 uploads
+    #1. to dataset upload tracking with metadata
+    #2. the data to the supabase storage
+
+    user_type, user_id = RBAC(request, db) = RBAC(request, db) 
+    if user_type != "Researchers":
+        raise UserNotAuthorized()
+
+    track_dataset = Dataset_Upload_Tracking(
+        FILENAME=file.filename,
+        DATASET_TYPE=DatasetInput.DatasetType,
+        UPLOADED_BY_USER_ID=user_id,
+        UPLOADED_AT=datetime.utcnow(),
+        FILE_SIZE=file.size,
+        ROW_COUNT=None,
+        UPLOAD_STATUS="Uploaded"
+    )
+
+# db.add(dataset)
+# db.commit()

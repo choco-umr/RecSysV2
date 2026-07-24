@@ -49,7 +49,10 @@ def RBAC(request, db):
             ).scalar()
             #return table name where user is found
             if exists_flag:
-                return table.__name__
+                return {
+                    "role": table.__name__,
+                    "user_id": user_id,
+                }
 
         raise UserNotFound()
     
