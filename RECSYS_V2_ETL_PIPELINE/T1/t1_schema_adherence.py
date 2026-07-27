@@ -1,5 +1,7 @@
 import pandas as pd
 
+
+#this is ont part of the script this is me acting as the  researcher matching the schema
 df = pd.read_csv(r"C:\Users\umr\Downloads\RECSYS_V2_ETL_PIPELINE\MINDsmall_train\behaviors.tsv"
                   , sep = '\t', header = None, names = ['impression_id', 'userid', 'Timestamp', 'History', 'impressions'])
 

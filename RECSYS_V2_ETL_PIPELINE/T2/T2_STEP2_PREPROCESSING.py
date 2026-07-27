@@ -13,6 +13,3 @@ def etl_preprocessing(df):
 
     return df
 
-#this funciton is simple it perfoms some light pre-processing on the dataset to ensure schema correctness
-#1.
-

@@ -65,6 +65,7 @@ class Dataset_Upload_Tracking(Base):
 
 class Interactions(Base):
     __tablename__ = "Interactions"
+    #add dataset_name can be empty
     INTERACTION_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # Removed FK relationships for now - researchers can upload interaction
