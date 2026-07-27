@@ -1,5 +1,5 @@
 from argon2 import PasswordHasher
-from config import MEMORY_COST, TIME_COST, PARALLELISM, SECRET_KEY, ALGORITHM, EXPIRY_TIME
+from config import MEMORY_COST, TIME_COST, PARALLELISM, SECRET_KEY, ALGORITHM, EXPIRY_TIME, MAX_FILE_SIZE
 import uuid
 import jwt
 import datetime
@@ -79,8 +79,8 @@ def generate_userid():
     return id
 
 
-def FileValidator(file: UploadFile,max_size_bytes: int = 2 * 1024 * 1024 * 1024) -> None: #2gb
-    
+def FileValidator(file: UploadFile,max_size_bytes: MAX_FILE_SIZE) -> None: #2gb
+    #MAX_FILE_SIZE = int = 2 * 1024 * 1024 * 1024 # PUT INTO CONFIG
     #filename check
     if not file.filename:
         raise FilenameRequired()

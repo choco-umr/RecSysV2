@@ -24,7 +24,7 @@ run_etl_pipeline()
 - Raises:
 - Notes
 """
-def run_etl_pipeline(df, dataset_type):
+def run_etl_pipeline(file_path: str, dataset_type: str):
     logger.info("ETL Pipeline started")
 
     inital_verification_steps = initial_file_checks(path, dataset_type)
