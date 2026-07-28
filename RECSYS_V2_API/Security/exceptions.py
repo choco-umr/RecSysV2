@@ -74,7 +74,14 @@ class FilenameRequired(HTTPException):
     def __init__(self):
         HTTPException.__init__(self, status_code=422, detail="Filename required")
 
-class SchemaValidationError(HTTPException):
-    def __init__(self, errors):
-        self.errors = errors
-        HTTPException.__init__(self, status_code=422, detail=f"Schema validation failed: {errors}")
+# class SchemaValidationError(HTTPException):
+#     def __init__(self, errors):
+#         self.errors = errors
+#         HTTPException.__init__(self, status_code=422, detail=f"Schema validation failed: {errors}")
+
+
+
+#TO/DO
+#add comments above each excption
+#clean imports
+#order these by groups

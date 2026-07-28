@@ -1,7 +1,6 @@
 RECSYS_V2_ETL_PIPELINE/Data/
 RECSYS_V2_API/.env
-DIAGRAMS/
 **/__pycache__
 **/*.pyc
 /venv
-generic_comands.txt
+LocalFiles/

@@ -17,3 +17,6 @@ PARALLELISM = os.getenv("PARALLELISM")
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 EXPIRY_TIME = os.getenv("EXPIRY_TIME")
+
+
+MAX_FILE_SIZE = os.getenv("MAX_FILE_SIZE")

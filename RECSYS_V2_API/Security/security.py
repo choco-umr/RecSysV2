@@ -79,8 +79,7 @@ def generate_userid():
     return id
 
 
-def FileValidator(file: UploadFile,max_size_bytes: MAX_FILE_SIZE) -> None: #2gb
-    #MAX_FILE_SIZE = int = 2 * 1024 * 1024 * 1024 # PUT INTO CONFIG
+def FileValidator(file: UploadFile) -> None: #2gb
     #filename check
     if not file.filename:
         raise FilenameRequired()
@@ -94,5 +93,8 @@ def FileValidator(file: UploadFile,max_size_bytes: MAX_FILE_SIZE) -> None: #2gb
     file_size = file.file.tell()
     file.file.seek(0)
 
-    if file_size > max_size_bytes:
+    print("current file size: ", file_size)
+    print("MAX_FILE_SIZE", MAX_FILE_SIZE)
+
+    if file_size > int(MAX_FILE_SIZE):
         raise InvalidFilesize()

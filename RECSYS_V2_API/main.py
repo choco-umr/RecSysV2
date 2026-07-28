@@ -6,6 +6,14 @@ from Routes.TestingRoutes import TestingRouter
 from Routes.GlobalRoutes import GlobalRouter
 from Routes.ResearcherRoutes import ResearcherRouter
 from Routes.AdminRoutes import AdminRouter
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s() - '%(message)s'",
+    force=True)
+
 
 #initialise the db on startup
 @asynccontextmanager

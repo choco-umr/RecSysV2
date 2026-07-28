@@ -1,37 +1,43 @@
 import pandas as pd
 import logging
 import os
+from ..exceptions import EmptyCSV
 logger = logging.getLogger(__name__)
 
-#we downlaod the file form supbase to local api path /tmp
-#then we cna run safety checks/etl pipeline
+"""
+STEP1_FILE LOADING()
+Purpose: Ensure the locally saved file existing and is not corrupt
+Steps:
+    1. Locates the saved temp file created when a user uploads a dataset
+    2. Ensure it existing
+    3. Ensure its valid by reading first 5 lines
 
-def initial_file_checks(path, dataset_type):
-    logger.info("Safety checks started")
+Input: Path (str) file path of temp file
+Output:
+    1. Sucess - Pandas Dataframe (df)
+    2. Fail - Raises exception (e)
 
-    # 1. Path check
-    if not isinstance(path, str):
-        raise ValueError("Path must be a string")
-    
+Notes:
+Do we really need to check first 5 lines? or just ensure the file is there and leave that to schema validation?
+"""
+
+def STEP1_FILE_LOADING(path):
+    logger.info("Locating uploaded file")
+
+    #check path exists
     if not os.path.exists(path):
         raise FileNotFoundError("File not found")
 
-    if not path.lower().endswith(".csv"):
-        raise ValueError("Only CSV files are supported")
+    logger.info(f"Located file sucessfully at: {path}")
 
-    # 2. Size check (important for ETL safety)
-    file_size_mb = os.path.getsize(path) / (1024 * 1024)
-
-    if file_size_mb > 300:
-        raise ValueError(f"File too large: {file_size_mb} MB")
-
-    #logger.info(f"File size OK: {file_size_mb} MB")
-
+    #check file is valid (read first 5 lines)
     try:
-        df = pd.read_csv(path, nrows=5)
+        df = pd.read_csv(path)
+    except pd.errors.EmptyDataError:
+        raise EmptyCSV()
     except Exception as e:
-        raise ValueError("Invalid CSV file") from e
+        raise ValueError("Invalid CSV file: ", e)
 
-    logger.info("Safety checks passed")
+    logger.info(f"File loaded, {len(df)} rows")
 
-    return True
+    return df
