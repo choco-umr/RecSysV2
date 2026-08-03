@@ -3,7 +3,7 @@ import pandas as pd
 
 from .T2.T2_STEP1_FILE_CHECKS import STEP1_FILE_LOADING
 from .T2.T2_STEP2_SCHEMA_VALIDATION import dataset_schema_validation
-from .T2.T2_STEP3_DEDUPLICATION import remove_duplicates
+from .T2.T2_STEP3_INSERT_DATASET import remove_duplicates_and_insert
 
 from Database.db import SessionLocal
 db = SessionLocal()
@@ -33,6 +33,6 @@ def run_etl_pipeline(file_path: str, dataset_type: str):
 
     validate_dataset_schema = dataset_schema_validation(loaded_df, dataset_type)
 
-    remove_duplicate_lines = remove_duplicates(validate_dataset_schema, dataset_type, db)
+    remove_duplicate_lines = remove_duplicates_and_insert(validate_dataset_schema, dataset_type, db)
 
 

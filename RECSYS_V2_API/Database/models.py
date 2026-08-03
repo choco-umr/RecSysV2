@@ -47,22 +47,6 @@ class Content(Base):
     ABSTRACT = Column(String)
     TIMESTAMP = Column(DateTime)
     ARTICLE_TYPE = Column(String)
- 
-# class Dataset_Upload_Tracking(Base):
-#     __tablename__ = "Dataset_Upload_Tracking"
-
-#     UPLOAD_ID = Column(UUID)
-#     FILENAME = Column(String)
-#     DATASET_TYPE = Column(String)
-#     UPLOADED_BY_USER_ID = Column(UUID)
-#     UPLOADED_AT = Column(DateTime(timezone=True))
-#     FILE_SIZE = Column(BigInteger) #FIX THIS
-#     ROW_COUNT = Column(Integer, nullable=True) # how are we going to get this
-#     UPLOAD_STATUS = Column(String)  # Uploaded or Failed
-
-#     # we already validate dataset type in schema and we validate fiel extension and file size in security
-
-
 
 class Interactions(Base):
     __tablename__ = "Interactions"
@@ -84,6 +68,22 @@ class Interactions(Base):
             name="uq_interactions_dedup",
         ),
     )
+
+
+# class Dataset_Upload_Tracking(Base):
+#     __tablename__ = "Dataset_Upload_Tracking"
+
+#     UPLOAD_ID = Column(UUID)
+#     FILENAME = Column(String)
+#     DATASET_TYPE = Column(String)
+#     UPLOADED_BY_USER_ID = Column(UUID)
+#     UPLOADED_AT = Column(DateTime(timezone=True))
+#     FILE_SIZE = Column(BigInteger) #FIX THIS
+#     ROW_COUNT = Column(Integer, nullable=True) # how are we going to get this
+#     UPLOAD_STATUS = Column(String)  # Uploaded or Failed
+
+#     # we already validate dataset type in schema and we validate fiel extension and file size in security
+
 
 
 
