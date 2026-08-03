@@ -3,6 +3,7 @@ from Database.db import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates, relationship
 import uuid
+from sqlalchemy import UniqueConstraint
 
 class Users(Base):
     __tablename__ = "Users"
@@ -38,13 +39,13 @@ class Admins(Base):
 
 class Content(Base):
     __tablename__ = "Content"
-    ITEM_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    ITEM_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) #will need to change from uuid later see user id in interactions table 
     DATASET_NAME = Column(String, nullable=True)
     TITLE = Column(String, nullable=False)
     CATEGORY = Column(String)
     SUBCATEGORY = Column(String)
     ABSTRACT = Column(String)
-    TIME_PUBLISHED = Column(DateTime)
+    TIMESTAMP = Column(DateTime)
     ARTICLE_TYPE = Column(String)
  
 # class Dataset_Upload_Tracking(Base):
@@ -65,23 +66,26 @@ class Content(Base):
 
 class Interactions(Base):
     __tablename__ = "Interactions"
-    DATASET_NAME = Column(String, nullable=True)
-    INTERACTION_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    DATASET_NAME = Column(String, nullable=False)
+    INTERACTION_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) #has to be str and not uuid since items cna be upoaded and they wont be uuids
 
-    # Removed FK relationships for now - researchers can upload interaction
-    # datasets from external sources, and those datasets reference users and
-    # content items that don't exist in our own Users/Content tables (discuss wiht tom about derived users coming). A hard
-    # FK constraint would reject those inserts outright, since Postgres
-    # requires the referenced row to exist. Left as plain UUID columns until
-    # we decide on the right long-term approach (likely separate real-FK vs
-    # external-reference columns, gated by DATASET_NAME).
-    USER_ID = Column(UUID(as_uuid=True), nullable=False)
-    ITEM_ID = Column(UUID(as_uuid=True), nullable=False)
 
-    DATETIME = Column(DateTime)
+    USER_ID = Column(String, nullable=False) #has to be str and not uuid since items cna be upoaded and they wont be uuids
+    ITEM_ID = Column(String, nullable=False) #has to be str and not uuid since items cna be upoaded and they wont be uuids
+
+    TIMESTAMP = Column(DateTime)
     INTERACTION_TYPE = Column(String, nullable=False)
-    READ_TIME = Column(Float)
-    SCROLL_PERCENTAGE = Column(Float)
+    READ_TIME = Column(Float, nullable=True)
+    SCROLL_PERCENTAGE = Column(Float, nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "DATASET_NAME", "USER_ID", "ITEM_ID", "TIMESTAMP", "INTERACTION_TYPE",
+            name="uq_interactions_dedup",
+        ),
+    )
+
+
 
 #TO/DO
 #global password strength function - https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html

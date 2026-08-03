@@ -23,11 +23,10 @@ from RECSYS_V2_ETL_PIPELINE.run_pipeline import run_etl_pipeline
 
 logger = logging.getLogger(__name__)
 
-
 ResearcherRouter = APIRouter(prefix='/ResearcherRoutes')
 
 @ResearcherRouter.post("/DatasetUpload")
-async def DatasetUpload(request: Request,file: UploadFile = File(...),DatasetInput: DatasetInputSchema = Depends(DatasetInputSchema.as_form),db: Session = Depends(get_db),):
+async def DatasetUpload(request: Request,file: UploadFile = File(...),DatasetInput: DatasetInputSchema = Depends(DatasetInputSchema.as_form),db: Session = Depends(get_db)):
     logger.info("Dataset upload process started")
     #how it works
     # run route
