@@ -29,12 +29,13 @@ def remove_duplicates_and_insert(df, dataset_type, db: Session):
     elif dataset_type == "Content":
         stmt = insert(Content).values(df.to_dict(orient="records"))
         stmt = stmt.on_conflict_do_nothing(
-            index_elements=[
-                "DATASET_NAME", "TITLE", "CATEGORY", "SUBCATEGORY", "ABSTRACT", "TIME_PUBLISHED", "ARTICLE_TYPE"
-            ]
-        )
+        index_elements=[
+            "DATASET_NAME", "TITLE", "CATEGORY", "SUB_CATEGORY", "ABSTRACT", "TIMESTAMP", "ARTICLE_TYPE"
+        ]
+    )
+        
         try:
-            result = db.execute(stmt)
+            result = db.execute(stmt) 
             db.commit()
             logger.info(f"Inserted {result.rowcount} rows")
             return result.rowcount

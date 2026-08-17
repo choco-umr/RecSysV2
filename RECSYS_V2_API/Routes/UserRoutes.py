@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies
 from Database.db import get_db
-
+from RECSYS_V2_RECOMMENDER import base, ContentBasedFiltering
 UserRouter = APIRouter(prefix='/UserRoutes')
 
 @UserRouter.post("/register")
@@ -26,22 +26,70 @@ async def Register(User: User_Register_Input, db: Session = Depends(get_db)):
         GenerateduserID = generate_userid()
         Hashed_Password = hash_password(User.Password)
 
+        Gender_Map = {"Male": 1, "Female": 2}
+
         new_user = Users(
             USER_ID = GenerateduserID,
-            USER_TYPE = "User",
             FIRST_NAME=User.Firstname,
             LAST_NAME=User.Lastname,
             USERNAME=User.Username,
             PASSWORD=Hashed_Password,
-            GENDER=User.Gender,
-            AGE=User.Age
+            GENDER=Gender_Map[User.Gender],
+            AGE=User.Age,
+            PREFERRED_CATEGORIES=User.PreferredCategories,
+            PREFERRED_SUB_CATEGORIES=User.PreferredSubCategories
             )
-
+        
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
 
         return new_user
+
+
+@UserRouter.get("/recommendations")
+async def recommendations(request: Request, db: Session = Depends(get_db)):
+
+    rbac_result = RBAC(request, db)
+
+    if rbac_result["role"] != "Users":
+        raise UserNotAuthorized()
+
+    user_category_preferences = db.execute(
+        select(Users).where(Users.USER_ID == user_id)
+    ).scalar_one_or_none()
+
+    preferred_categories = user_category_preferences.PREFERRED_CATEGORIES
+
+
+    #fetch current recommder from RecommendorAlgorithms.CURRENTLY_ACTIVE and get recs form that
+    #find th foldr of the uploaded file and run the code
+
+    FindAlgorithm = db.execute(
+        select(RecommendorAlgorithms).where(RecommendorAlgorithms.CURRENTLY_ACTIVE == "Yes")
+    ).scalar_one_or_none()
+
+    #locate the file in /recommders folder wiht the RecommendorAlgorithms.filename and run that code
+    folder = f"/RECSYS_V2_RECOMMENDER/{FindAlgorithm.CURRENTLY_ACTIVE}"
+    available_recommenders = []
+    for file in os.listdir(folder):
+        name, ext = os.path.splitext(file)
+        print(name, ext)
+        if name.startswith("-r") and ext == ".py":
+            available_recommenders.append(name)
+        else:
+            pass
+
+
+    df = load_data(db)
+    model = CategoryMeanRecommender()
+    model.fit(df)
+    model.recommend(preferred_categories) #pass in single preffered category for now
+
+
+
+#users need to choose category preference as soon as he registers
+#for now just manually select preferences througa route or mnual db edit
 
 #notes
 #clean up all htpeceptions

@@ -1,9 +1,12 @@
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Float, BigInteger
-from Database.db import Base
+from .db import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates, relationship
 import uuid
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
 
 class Users(Base):
     __tablename__ = "Users"
@@ -14,6 +17,8 @@ class Users(Base):
     PASSWORD = Column("PASSWORD", String)
     GENDER = Column("GENDER",Integer, nullable=False) #need to make it enum?
     AGE = Column("AGE", Integer) #add validation for between 1-100
+    PREFERRED_CATEGORIES: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
+    PREFERRED_SUB_CATEGORIES: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
     
     @validates("GENDER")
     def validate_GENDER(self, key, GENDER):
@@ -39,14 +44,23 @@ class Admins(Base):
 
 class Content(Base):
     __tablename__ = "Content"
-    ITEM_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) #will need to change from uuid later see user id in interactions table 
     DATASET_NAME = Column(String, nullable=True)
-    TITLE = Column(String, nullable=False)
+    ITEM_ID = Column(String, nullable=False, primary_key=True) #will need to change from uuid later see user id in interactions table 
     CATEGORY = Column(String)
-    SUBCATEGORY = Column(String)
+    SUB_CATEGORY = Column(String)
+    TITLE = Column(String, nullable=False)
     ABSTRACT = Column(String)
     TIMESTAMP = Column(DateTime)
     ARTICLE_TYPE = Column(String)
+
+    __table_args__ = (
+        UniqueConstraint(
+            "DATASET_NAME", "TITLE", "CATEGORY", "SUB_CATEGORY",
+            "ABSTRACT", "TIMESTAMP", "ARTICLE_TYPE",
+            name="uq_content_dedup"
+        ),
+    )
+    
 
 class Interactions(Base):
     __tablename__ = "Interactions"
@@ -68,6 +82,21 @@ class Interactions(Base):
             name="uq_interactions_dedup",
         ),
     )
+
+class RecommendorAlgorithms(Base):
+    ALGORITHM_NAME = Column(String,primary_key=True, nullable=False)
+    CURRENTLY_ACTIVE = Column(String, nullable=False)
+
+    @validates("CURRENTLY_ACTIVE")
+    def validate_ACTIVE_STATE(self, key, GENDER):
+        if GENDER not in ("Yes", "No"):
+            raise ValueError("Invalid ACTIVE STATE")
+        return GENDER
+
+
+
+
+
 
 
 # class Dataset_Upload_Tracking(Base):

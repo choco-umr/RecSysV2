@@ -4,3 +4,4 @@ RECSYS_V2_API/.env
 **/*.pyc
 /venv
 LocalFiles/
+/LocalFiles

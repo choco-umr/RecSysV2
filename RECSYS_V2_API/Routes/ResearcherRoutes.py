@@ -1,7 +1,7 @@
 import os
 import shutil
 from streamlit import error, user
-from Schemas.schemas import AdminResearcher_Register_Input,Admin_Register_Input, DatasetInputSchema
+from Schemas.schemas import AdminResearcher_Register_Input,Admin_Register_Input, DatasetInputSchema, RecommendorInputSchema
 from Database.models import Users, Researchers, Admins, Content
 from fastapi import Depends, APIRouter, HTTPException, Response, Request
 from sqlalchemy.orm import Session
@@ -20,9 +20,9 @@ import logging
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from RECSYS_V2_ETL_PIPELINE.run_pipeline import run_etl_pipeline
-
+import os
 logger = logging.getLogger(__name__)
-
+from sqlalchemy import delete
 ResearcherRouter = APIRouter(prefix='/ResearcherRoutes')
 
 @ResearcherRouter.post("/DatasetUpload")
@@ -75,26 +75,50 @@ async def DatasetUpload(request: Request,file: UploadFile = File(...),DatasetInp
         # remove temp file 
         if os.path.exists(temp_file_path):
             os.remove(temp_file_path)
-            
 
-    #to/do
-    #pass file into securities FileValidator
-    # rename file to something
-    #upload file to supbase storage
 
-    track_dataset = Dataset_Upload_Tracking(
-        FILENAME=file.filename,
-        DATASET_TYPE=DatasetInput.DatasetType,
-        UPLOADED_BY_USER_ID=user_id,
-        UPLOADED_AT=datetime.utcnow(),
-        FILE_SIZE=file.size,
-        ROW_COUNT=None,
-        UPLOAD_STATUS="Uploaded"
-    )
+#upload recommender algorithm - aks tom for a single file type do other algos need other file types etc?
 
-    #once checks passed we need 2 uploads
-    #1. to dataset upload tracking with metadata
-    #2. the data to the supabase storage
+#choose reocmmder and will run evrytime the reocmmedations are generaed (once a day at 12 or someting)
+@ResearcherRouter.post("/ChooseRecommenderAlgorithm")
+def ChooseRecommenderAlgorithm(request: Request,RecommenderNameInput: RecommenderInputSchema = Depends(DatasetInputSchema.as_form),db: Session = Depends(get_db)):
+
+    folder = "/RECSYS_V2_RECOMMENDER"
+    available_recommenders = []
+    for file in os.listdir(folder):
+        name, ext = os.path.splitext(file)
+        print(name, ext)
+        if name.startswith("-r") and ext == ".py":
+            available_recommenders.append(name)
+        else:
+            pass
+
+    if RecommenderNameInput in available_recommenders:
+        #clear db then insert db with alogirthm name and currentyl active
+        #just for the first insert we delete the change code to just edit
+
+        db.execute(delete(models.RecommendorAlgorithms))
+        db.commit()
+
+        Selected_algorithm = RecommendorAlgorithms(
+             ALGORITHM_NAME = RecommenderNameInput,
+             CURRENTLY_ACTIVE = "Yes"
+            )
+
+        db.add(Selected_algorithm)
+        db.commit()
+        db.refresh(Selected_algorithm)
+
+    else:
+        print("error rec gen not found")
+
+
+
+
+
+#check repo folder locally /recommder
+#find all files wiht beginning wiht -r
+ #choose the selected algo and set it within RecommendorAlgorithms.CURRENTLY_ACTIVE
     
 # db.add(dataset)
 # db.commit()

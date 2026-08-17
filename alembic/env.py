@@ -4,8 +4,7 @@ import sys, os
 # project root (so "RECSYS_V2_API.Database..." imports resolve)
 sys.path.append(os.getcwd())
 # RECSYS_V2_API folder itself (so db.py's bare "from config import ..." resolves)
-sys.path.append(os.path.join(os.getcwd(), "RECSYS_V2_API"))
-
+from RECSYS_V2_API.Database.db import Base
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
@@ -13,9 +12,8 @@ from alembic import context
 
 # --- ADD THESE ---
 # --- match models.py's import style exactly ---
-from Database.db import Base
-import Database.models
-from config import CONNECTION_URL  # <-- add this
+from RECSYS_V2_API.Database.db import Base
+from RECSYS_V2_API.config import CONNECTION_URL  # <-- add this
 # ------------------
 
 # this is the Alembic Config object, which provides
