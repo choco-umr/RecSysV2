@@ -2,12 +2,12 @@ from streamlit import error, user
 
 from Schemas.schemas import User_Register_Input, LoginInputSchema
 from Database.models import Users, Researchers, Admins
-from fastapi import Depends, APIRouter, HTTPException, Response
+from fastapi import Depends, APIRouter, HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies
+from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies, RBAC
 from Database.db import get_db
-from RECSYS_V2_RECOMMENDER import base, ContentBasedFiltering
+from RECSYS_V2_RECOMMENDER import Base, RContentBasedFiltering
 UserRouter = APIRouter(prefix='/UserRoutes')
 
 @UserRouter.post("/register")
@@ -44,7 +44,12 @@ async def Register(User: User_Register_Input, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(new_user)
 
-        return new_user
+        return {
+            "success": True,
+            "message": "Registration successful",
+            "username": new_user.USERNAME
+        }
+
 
 
 @UserRouter.get("/recommendations")
@@ -71,20 +76,20 @@ async def recommendations(request: Request, db: Session = Depends(get_db)):
 
     #locate the file in /recommders folder wiht the RecommendorAlgorithms.filename and run that code
     folder = f"/RECSYS_V2_RECOMMENDER/{FindAlgorithm.CURRENTLY_ACTIVE}"
-    available_recommenders = []
-    for file in os.listdir(folder):
-        name, ext = os.path.splitext(file)
-        print(name, ext)
-        if name.startswith("-r") and ext == ".py":
-            available_recommenders.append(name)
-        else:
-            pass
+    
 
 
     df = load_data(db)
     model = CategoryMeanRecommender()
     model.fit(df)
-    model.recommend(preferred_categories) #pass in single preffered category for now
+    final_recs = model.recommend(preferred_categories) #returned are ordered recommded ids need to fetch from db
+
+
+    recommendations = db.execute(
+        select(Content).where(Content.ITEM_ID.in_(final_recs))
+    ).scalars().all()
+
+    return recommendations
 
 
 

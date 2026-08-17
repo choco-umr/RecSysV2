@@ -84,6 +84,7 @@ class Interactions(Base):
     )
 
 class RecommendorAlgorithms(Base):
+    __tablename__ = "RecommendorAlgorithms"
     ALGORITHM_NAME = Column(String,primary_key=True, nullable=False)
     CURRENTLY_ACTIVE = Column(String, nullable=False)
 

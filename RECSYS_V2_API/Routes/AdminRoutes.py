@@ -11,11 +11,50 @@ from Security.exceptions import UserNotAuthorized, UserNotFound
 
 AdminRouter = APIRouter(prefix='/AdminRoutes')
 
+
+@AdminRouter.post("/register")
+async def Register(User: Admin_Register_Input, db: Session = Depends(get_db)):
+
+    DupeUsernameCheck = db.execute(
+        select(Admins).where(Admins.USERNAME == User.Username)
+    ).scalar_one_or_none()
+    
+    if DupeUsernameCheck is not None:
+        raise HTTPException(
+                status_code=409,
+                detail="Username already exists"
+            )
+    else:
+        GenerateduserID = generate_userid()
+        Hashed_Password = hash_password(User.Password)
+
+        Gender_Map = {"Male": 1, "Female": 2}
+
+        new_user = Admins(
+            USER_ID = GenerateduserID,
+            FIRST_NAME=User.Firstname,
+            LAST_NAME=User.Lastname,
+            USERNAME=User.Username,
+            PASSWORD=Hashed_Password,
+            )
+        
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        return new_user
+
+
+
+
 #register admins
 @AdminRouter.post("/AdminRegister")
 async def AdminRegister(request: Request, User: Admin_Register_Input, db: Session = Depends(get_db)):
 
-    user_type, user_id = RBAC(request, db)
+    rbac_result = RBAC(request, db)
+    user_type = rbac_result["role"]
+    user_id = rbac_result["user_id"]
+
     if user_type != "Admins":
         raise UserNotAuthorized()
 
@@ -51,9 +90,9 @@ async def AdminRegister(request: Request, User: Admin_Register_Input, db: Sessio
 @AdminRouter.post("/ResearcherRegister")
 async def AdminResearcherRegister(request: Request, User: AdminResearcher_Register_Input, db: Session = Depends(get_db)):
 
-    user_type, user_id = RBAC(request, db)
-    if user_type != "Admins":
-        raise UserNotAuthorized()
+    # user_type, user_id = RBAC(request, db)
+    # if user_type != "Admins":
+    #     raise UserNotAuthorized()
 
     DupeUsernameCheck = db.execute(
         select(Researchers).where(Researchers.USERNAME == User.Username)
@@ -70,7 +109,6 @@ async def AdminResearcherRegister(request: Request, User: AdminResearcher_Regist
 
         new_user = Researchers(
             USER_ID = GenerateduserID,
-            USER_TYPE = "Researcher",
             FIRST_NAME=User.Firstname,
             LAST_NAME=User.Lastname,
             USERNAME=User.Username,

@@ -8,8 +8,8 @@ from Security.exceptions import *
 from RECSYS_V2_ETL_PIPELINE.T2.Data_Schemas.schemas import available_news_categories, available_news_sub_categories
 
 class User_Register_Input(BaseModel):
-    Firstname: str = Field(default='John', min_length=2, max_length=10)
-    Lastname: str = Field(default='Doe', min_length=2, max_length=10)
+    Firstname: str = Field(min_length=2, max_length=10)
+    Lastname: str = Field(min_length=2, max_length=10)
     Username: str = Field(min_length=2, max_length=25) # need to be unique  - add check
     Password: str = Field(min_length=5, max_length=10) 
     Gender: Literal["Male", "Female"]
@@ -116,7 +116,7 @@ class DatasetInputSchema(BaseModel):
         return cls(DatasetType=DatasetType)
 
 
-class RecommendorInputSchema(Basemodel)
+class RecommendorInputSchema(BaseModel):
     #datatset type
     ALGORITHM_NAME: str
 

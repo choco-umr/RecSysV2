@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+
+    <div id="alertBox" class="alert alert-danger" role="alert"></div>
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+      <div class="card shadow-sm" style="max-width: 480px; width: 100%;">
+        <div class="card-body p-4">
+          <h2 class="card-title text-center mb-4">Create an account</h2>
+
+          <form id="registerForm" action="/register" method="POST">
+            
+            <div class="mb-3">
+              <label for="Firstname" class="form-label">Firstname</label>
+              <input type="text" class="form-control" id="Firstname" placeholder="Firstname here" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="Lastname" class="form-label">Lastname</label>
+              <input type="text" class="form-control" id="Lastname" placeholder="Lastname here" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="Username" class="form-label">Username</label>
+              <input type="Username" class="form-control" id="Username" placeholder="Username here" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">password</label>
+              <input type="password" class="form-control" id="password" placeholder="Password" required>
+            </div>
+
+            <select class="form-select" id="categorySelect">
+              <option value="" selected disabled>Select category</option>
+            </select>
+
+            <div class="mb-3">
+              <label for="Age" class="form-label">Age</label>
+              <input type="Age" class="form-control" id="Age" placeholder="Age here" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+          </form>
+
+
+          <script>
+              document.getElementById("registerForm").addEventListener("submit", async (event) => {
+                  event.preventDefault();
+
+                  const response = await fetch("http://localhost:8000/api/UserRoutes/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      Firstname: document.getElementById("Firstname").value,
+                      Lastname: document.getElementById("Lastname").value,
+                      Username: document.getElementById("Username").value,
+                      Password: document.getElementById("password").value,
+                      Gender: "Male",
+                      Age: Number(document.getElementById("Age").value),
+                      PreferredCategories: [document.getElementById("categorySelect").value]
+                    })
+                  });
+
+                  const data = await response.json();
+                  const alertBox = document.getElementById("alertBox");
+                  if (data.success) {
+                    alertBox.classList.remove("alert-danger");
+                    alertBox.classList.add("alert-success");
+                    alertBox.textContent = "Success! Redirecting..."; // friendly message instead of raw JSON
+                    alertBox.classList.remove("d-none");
+
+                    window.location.href = "login.html";
+
+
+                  } else {
+                    alertBox.classList.remove("alert-success");
+                    alertBox.classList.add("alert-danger");
+                    alertBox.textContent = JSON.stringify(data);
+                    alertBox.classList.remove("d-none");
+                  }
+
+                });
+          </script>
+
+            <script>
+              async function loadCategories() {
+                const response = await fetch("http://localhost:8000/api/FrontendHelperRouter/GetCategories");
+                const categories = await response.json();
+
+                const select = document.getElementById("categorySelect");
+                categories.forEach((category) => {
+                  const option = document.createElement("option");
+                  option.value = category;
+                  option.textContent = category;
+                  select.appendChild(option);
+                });
+              }
+
+              loadCategories();
+
+            </script>
+
+
+
+
+        </div>
+      </div>
+    </div>
+    -->
+  </body>
+</html>

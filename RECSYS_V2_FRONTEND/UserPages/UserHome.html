@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="../bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="../bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">RecSysV2</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Preferences</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#" id="logoutLink">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div id="recommendationsContainer" class="row row-cols-1 row-cols-md-2 g-4"></div>
+
+    <script>
+      async function loadRecommendations() {
+        const response = await fetch("http://localhost:8000/api/UserRoutes/recommendations", {
+          credentials: "include"
+        });
+        const recommendations = await response.json();
+        const container = document.getElementById("recommendationsContainer");
+
+        recommendations.forEach((rec) => {
+          const col = document.createElement("div");
+          col.className = "col";
+
+          const card = document.createElement("div");
+          card.className = "card h-100 shadow-sm";
+
+          const cardBody = document.createElement("div");
+          cardBody.className = "card-body";
+
+          const badge = document.createElement("span");
+          badge.className = "badge bg-secondary mb-2";
+          badge.textContent = rec.CATEGORY;
+
+          const title = document.createElement("h5");
+          title.className = "card-title";
+          title.textContent = rec.TITLE;
+
+          const abstract = document.createElement("p");
+          abstract.className = "card-text text-muted";
+          abstract.textContent = rec.ABSTRACT;
+
+          cardBody.appendChild(badge);
+          cardBody.appendChild(title);
+          cardBody.appendChild(abstract);
+          card.appendChild(cardBody);
+
+          const footer = document.createElement("div");
+          footer.className = "card-footer d-flex gap-2";
+
+          const likeBtn = document.createElement("button");
+          likeBtn.className = "btn btn-sm btn-outline-success";
+          likeBtn.textContent = "Like";
+          likeBtn.addEventListener("click", () => sendInteraction(rec.ITEM_ID, "like"));
+
+          const dislikeBtn = document.createElement("button");
+          dislikeBtn.className = "btn btn-sm btn-outline-danger";
+          dislikeBtn.textContent = "Dislike";
+          dislikeBtn.addEventListener("click", () => sendInteraction(rec.ITEM_ID, "dislike"));
+
+          footer.appendChild(likeBtn);
+          footer.appendChild(dislikeBtn);
+          card.appendChild(footer);
+
+          col.appendChild(card);
+          container.appendChild(col);
+        });
+      }
+
+      async function sendInteraction(itemId, interactionType) {
+        await fetch("http://localhost:8000/api/UserRoutes/interactions", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ITEM_ID: itemId,
+            INTERACTION_TYPE: interactionType
+          })
+        });
+      }
+
+      loadRecommendations();
+    </script>
+  </body>
+</html>

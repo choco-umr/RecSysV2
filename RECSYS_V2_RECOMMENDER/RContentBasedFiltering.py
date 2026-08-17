@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from Base import Recommender
+from RECSYS_V2_RECOMMENDER.Base import Recommender
 from RECSYS_V2_API.Database.db import SessionLocal
 from RECSYS_V2_API.Database.models import Interactions, Content
 
@@ -113,7 +113,7 @@ class CategoryMeanRecommender(Recommender):
         item_ids = df["ITEM_ID"].values   # or df.index.values, if that's your identifier
         recommended_ids = item_ids[top_scores_indicies] #get item ids based on score positions 
 
-        print(recommended_ids)
+        return recommended_ids
 
 
 
