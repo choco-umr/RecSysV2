@@ -7,6 +7,8 @@ from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Boolean
+from sqlalchemy import Column, String, Boolean, DateTime, Float, ForeignKey, UniqueConstraint
 
 class Users(Base):
     __tablename__ = "Users"
@@ -75,6 +77,7 @@ class Interactions(Base):
     INTERACTION_TYPE = Column(String, nullable=False)
     READ_TIME = Column(Float, nullable=True)
     SCROLL_PERCENTAGE = Column(Float, nullable=True)
+    ALGORITHM_USED = Column(String, ForeignKey("RecommendorAlgorithms.ALGORITHM_NAME"), nullable=True) #has to be alg name from recommder algortihms tablwe
 
     __table_args__ = (
         UniqueConstraint(
@@ -86,13 +89,10 @@ class Interactions(Base):
 class RecommendorAlgorithms(Base):
     __tablename__ = "RecommendorAlgorithms"
     ALGORITHM_NAME = Column(String,primary_key=True, nullable=False)
-    CURRENTLY_ACTIVE = Column(String, nullable=False)
+    CURRENTLY_ACTIVE = Column(Boolean, nullable=False, default=False)   
+    TIMESTAMP_START = Column(DateTime)
+    TIMESTAMP_END = Column(DateTime)
 
-    @validates("CURRENTLY_ACTIVE")
-    def validate_ACTIVE_STATE(self, key, GENDER):
-        if GENDER not in ("Yes", "No"):
-            raise ValueError("Invalid ACTIVE STATE")
-        return GENDER
 
 
 

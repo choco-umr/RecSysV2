@@ -37,78 +37,115 @@
       </div>
     </nav>
 
+
     <div id="recommendationsContainer" class="row row-cols-1 row-cols-md-2 g-4"></div>
 
+      <script>
+        async function loadRecommendations() {
+          const response = await fetch("http://localhost:8000/api/UserRoutes/recommendations", {
+            credentials: "include"
+          });
+          const recommendations = await response.json();
+          const container = document.getElementById("recommendationsContainer");
+          container.innerHTML = ""; // clear before re-render, avoids duplicates on refresh calls
+
+          recommendations.forEach((rec) => {
+            const col = document.createElement("div");
+            col.className = "col";
+
+            const card = document.createElement("div");
+            card.className = "card h-100 shadow-sm";
+
+            const cardBody = document.createElement("div");
+            cardBody.className = "card-body";
+
+            const badge = document.createElement("span");
+            badge.className = "badge bg-secondary mb-2";
+            badge.textContent = rec.CATEGORY;
+
+            const title = document.createElement("h5");
+            title.className = "card-title";
+            title.textContent = rec.TITLE;
+
+            const abstract = document.createElement("p");
+            abstract.className = "card-text text-muted";
+            abstract.textContent = rec.ABSTRACT;
+
+            cardBody.appendChild(badge);
+            cardBody.appendChild(title);
+            cardBody.appendChild(abstract);
+            card.appendChild(cardBody);
+
+            const footer = document.createElement("div");
+            footer.className = "card-footer d-flex gap-2";
+
+            const currentType = rec.CURRENT_INTERACTION_TYPE; // null/undefined if no interaction yet
+
+            const likeBtn = makeInteractionButton("Like", "success", "like", rec.ITEM_ID, currentType, footer);
+            const dislikeBtn = makeInteractionButton("Dislike", "danger", "dislike", rec.ITEM_ID, currentType, footer);
+            const reportBtn = makeInteractionButton("Report", "warning", "report", rec.ITEM_ID, currentType, footer);
+
+            footer.appendChild(likeBtn);
+            footer.appendChild(dislikeBtn);
+            footer.appendChild(reportBtn);
+            card.appendChild(footer);
+            col.appendChild(card);
+            container.appendChild(col);
+          });
+        }
+
+        function makeInteractionButton(label, variant, type, itemId, currentType, footer) {
+          const btn = document.createElement("button");
+          const isActive = currentType === type;
+          btn.className = isActive
+            ? `btn btn-sm btn-${variant}`          // filled = currently selected
+            : `btn btn-sm btn-outline-${variant}`; // outline = not selected
+          btn.textContent = label;
+          btn.dataset.itemId = itemId;
+          btn.dataset.type = type;
+
+          btn.addEventListener("click", async () => {
+            await sendInteraction(itemId, type);
+            // update this button group's active state immediately, no reload needed
+            footer.querySelectorAll("button").forEach((b) => {
+              const v = b.className.match(/btn-(?:outline-)?(success|danger|warning)/)[1];
+              b.className = b.dataset.type === type
+                ? `btn btn-sm btn-${v}`
+                : `btn btn-sm btn-outline-${v}`;
+            });
+          });
+
+          return btn;
+        }
+
+        async function sendInteraction(itemId, interactionType) {
+          await fetch("http://localhost:8000/api/UserRoutes/interactions", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ITEM_ID: itemId,
+              INTERACTION_TYPE: interactionType
+            })
+          });
+        }
+
+        loadRecommendations();
+      </script>
+
+
     <script>
-      async function loadRecommendations() {
-        const response = await fetch("http://localhost:8000/api/UserRoutes/recommendations", {
-          credentials: "include"
-        });
-        const recommendations = await response.json();
-        const container = document.getElementById("recommendationsContainer");
+      document.getElementById("logoutLink").addEventListener("click", async (event) => {
+        event.preventDefault(); // stop the "#" link from just jumping to top of page
 
-        recommendations.forEach((rec) => {
-          const col = document.createElement("div");
-          col.className = "col";
-
-          const card = document.createElement("div");
-          card.className = "card h-100 shadow-sm";
-
-          const cardBody = document.createElement("div");
-          cardBody.className = "card-body";
-
-          const badge = document.createElement("span");
-          badge.className = "badge bg-secondary mb-2";
-          badge.textContent = rec.CATEGORY;
-
-          const title = document.createElement("h5");
-          title.className = "card-title";
-          title.textContent = rec.TITLE;
-
-          const abstract = document.createElement("p");
-          abstract.className = "card-text text-muted";
-          abstract.textContent = rec.ABSTRACT;
-
-          cardBody.appendChild(badge);
-          cardBody.appendChild(title);
-          cardBody.appendChild(abstract);
-          card.appendChild(cardBody);
-
-          const footer = document.createElement("div");
-          footer.className = "card-footer d-flex gap-2";
-
-          const likeBtn = document.createElement("button");
-          likeBtn.className = "btn btn-sm btn-outline-success";
-          likeBtn.textContent = "Like";
-          likeBtn.addEventListener("click", () => sendInteraction(rec.ITEM_ID, "like"));
-
-          const dislikeBtn = document.createElement("button");
-          dislikeBtn.className = "btn btn-sm btn-outline-danger";
-          dislikeBtn.textContent = "Dislike";
-          dislikeBtn.addEventListener("click", () => sendInteraction(rec.ITEM_ID, "dislike"));
-
-          footer.appendChild(likeBtn);
-          footer.appendChild(dislikeBtn);
-          card.appendChild(footer);
-
-          col.appendChild(card);
-          container.appendChild(col);
-        });
-      }
-
-      async function sendInteraction(itemId, interactionType) {
-        await fetch("http://localhost:8000/api/UserRoutes/interactions", {
+        await fetch("http://localhost:8000/api/GlobalRoutes/Logout", {
           method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ITEM_ID: itemId,
-            INTERACTION_TYPE: interactionType
-          })
+          credentials: "include" // needed so the browser sends the access_token cookie to be cleared
         });
-      }
 
-      loadRecommendations();
+        window.location.href = "../login.html";
+      });
+
     </script>
   </body>
 </html>

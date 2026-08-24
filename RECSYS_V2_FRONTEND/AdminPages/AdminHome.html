@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="../bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Admin Dashboard - RecSysV2</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">RecSysV2</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Admin Home</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="#" id="logoutLink">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid mt-4 px-4">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+
+        <!-- Register Admin -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-header">Register Admin</div>
+            <div class="card-body">
+              <div id="adminAlertBox" class="alert d-none" role="alert"></div>
+              <form id="AdminRegisterForm">
+                <div class="mb-2">
+                  <label class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="adminFirstname" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="adminLastname" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Username</label>
+                  <input type="text" class="form-control" id="adminUsername" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Password</label>
+                  <input type="password" class="form-control" id="adminPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Register Admin</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Register Researcher -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-header">Register Researcher</div>
+            <div class="card-body">
+              <div id="researcherAlertBox" class="alert d-none" role="alert"></div>
+              <form id="ResearcherRegisterForm">
+                <div class="mb-2">
+                  <label class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="researcherFirstname" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="researcherLastname" required>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label">Username</label>
+                  <input type="text" class="form-control" id="researcherUsername" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Password</label>
+                  <input type="password" class="form-control" id="researcherPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Register Researcher</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete User -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-header">Delete User</div>
+            <div class="card-body">
+              <div id="deleteAlertBox" class="alert d-none" role="alert"></div>
+              <form id="DeleteUserForm">
+                <div class="mb-3">
+                  <label class="form-label">Username to delete</label>
+                  <input type="text" class="form-control" id="deleteUsername" required>
+                </div>
+                <button type="submit" class="btn btn-danger">Delete User</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add more cards here later - just copy a <div class="col"> block above -->
+
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="../bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      function showAlert(boxId, message, isSuccess) {
+        const box = document.getElementById(boxId);
+        box.classList.remove("d-none", "alert-success", "alert-danger");
+        box.classList.add(isSuccess ? "alert-success" : "alert-danger");
+        box.textContent = message;
+      }
+
+      document.getElementById("AdminRegisterForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          const response = await fetch("http://localhost:8000/api/AdminRoutes/AdminRegister", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              Firstname: document.getElementById("adminFirstname").value,
+              Lastname: document.getElementById("adminLastname").value,
+              Username: document.getElementById("adminUsername").value,
+              Password: document.getElementById("adminPassword").value,
+            })
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showAlert("adminAlertBox", `Admin "${data.USERNAME}" registered successfully.`, true);
+            document.getElementById("AdminRegisterForm").reset();
+          } else {
+            showAlert("adminAlertBox", data.detail || "Failed to register admin.", false);
+          }
+        } catch (err) {
+          showAlert("adminAlertBox", "Network error - could not reach server.", false);
+        }
+      });
+
+      document.getElementById("ResearcherRegisterForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          const response = await fetch("http://localhost:8000/api/AdminRoutes/ResearcherRegister", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              Firstname: document.getElementById("researcherFirstname").value,
+              Lastname: document.getElementById("researcherLastname").value,
+              Username: document.getElementById("researcherUsername").value,
+              Password: document.getElementById("researcherPassword").value,
+            })
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showAlert("researcherAlertBox", `Researcher "${data.USERNAME}" registered successfully.`, true);
+            document.getElementById("ResearcherRegisterForm").reset();
+          } else {
+            showAlert("researcherAlertBox", data.detail || "Failed to register researcher.", false);
+          }
+        } catch (err) {
+          showAlert("researcherAlertBox", "Network error - could not reach server.", false);
+        }
+      });
+
+      document.getElementById("DeleteUserForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const username = document.getElementById("deleteUsername").value;
+        try {
+          const response = await fetch("http://localhost:8000/api/AdminRoutes/DeleteUser", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              Username: username
+            })
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showAlert("deleteAlertBox", data.detail || `User "${username}" deleted.`, true);
+            document.getElementById("DeleteUserForm").reset();
+          } else {
+            showAlert("deleteAlertBox", data.detail || "Failed to delete user.", false);
+          }
+        } catch (err) {
+          showAlert("deleteAlertBox", "Network error - could not reach server.", false);
+        }
+      });
+
+      document.getElementById("logoutLink").addEventListener("click", async (event) => {
+        event.preventDefault();
+        await fetch("http://localhost:8000/api/GlobalRoutes/Logout", {
+          method: "POST",
+          credentials: "include"
+        });
+        window.location.href = "../login.html";
+      });
+    </script>
+  </body>
+</html>

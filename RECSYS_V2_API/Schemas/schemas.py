@@ -120,17 +120,25 @@ class RecommendorInputSchema(BaseModel):
     #datatset type
     ALGORITHM_NAME: str
 
-    @model_validator(mode="after")
-    def valid_dataset_type(self):
-        if not self.ALGORITHM_NAME.lower().startswith("-r"):
-            raise ValueError("ALGORITHM_NAME must start with '-r'")
-        return self
-
-    @classmethod
-    def as_form(cls, DatasetType: str = Form(...)):
-        return cls(DatasetType=DatasetType)
+    # @model_validator(mode="after")
+    # def valid_dataset_type(self):
+    #     if not self.ALGORITHM_NAME.lower().startswith("R"):
+    #         raise ValueError("ALGORITHM_NAME must start with 'R'")
+    #     return self
 
     
+class Store_interactions(BaseModel):
+    ITEM_ID: str
+    INTERACTION_TYPE: str
+    
+    @model_validator(mode="after")
+    def valid_dataset_type(self):
+        normalized = self.INTERACTION_TYPE.lower()
+        if normalized not in ["like", "dislike", "report"]:
+            raise ValueError("invalid interaction type")
+        self.INTERACTION_TYPE = normalized
+        return self
+
 #notes
 #ensure uuid is unique (0.001% can de dupe so check error handling)
 #change value errors to hhtp errors?

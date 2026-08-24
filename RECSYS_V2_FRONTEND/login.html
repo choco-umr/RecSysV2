@@ -18,7 +18,7 @@
     <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
       <div class="card shadow-sm" style="max-width: 480px; width: 100%;">
         <div class="card-body p-4">
-          <h2 class="card-title text-center mb-4">Create an account</h2>
+          <h2 class="card-title text-center mb-4">Login</h2>
 
           <form id="LoginForm" action="/login" method="POST">
 
@@ -32,63 +32,78 @@
               <input type="password" class="form-control" id="password" placeholder="Password" required>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Register</button>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
           </form>
+
+          <p class="text-center mt-3 mb-0">
+             <a href="register.html">Register here</a>
+          </p>
+
+          <a class="nav-link" href="#" id="logoutLink">Logout</a>
+
+
+
+
 
 
           <script>
               document.getElementById("LoginForm").addEventListener("submit", async (event) => {
-                  event.preventDefault();
+              event.preventDefault();
+              const response = await fetch("http://localhost:8000/api/GlobalRoutes/login", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  Username: document.getElementById("Username").value,
+                  Password: document.getElementById("password").value,
+                })
+              });
+              const data = await response.json();
+              const alertBox = document.getElementById("alertBox");
 
-                  const response = await fetch("http://localhost:8000/api/GlobalRoutes/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      Username: document.getElementById("Username").value,
-                      Password: document.getElementById("password").value,
-                    })
-                  });
+              if (data.success) {
+                alertBox.classList.remove("alert-danger");
+                alertBox.classList.add("alert-success");
+                alertBox.textContent = "Success! Redirecting...";
+                alertBox.classList.remove("d-none");
 
-                  const data = await response.json();
-                  const alertBox = document.getElementById("alertBox");
-                  if (data.success) {
-                    alertBox.classList.remove("alert-danger");
-                    alertBox.classList.add("alert-success");
-                    alertBox.textContent = "Success! Redirecting..."; // friendly message instead of raw JSON
-                    alertBox.classList.remove("d-none");
+                const roleRedirects = {
+                  Users: "UserPages/UserHome.html",
+                  Researchers: "ResearcherPages/ResearcherHome.html",
+                  Admins: "AdminPages/AdminHome.html",
+                };
 
-                    window.location.href = "UserPages/UserHome.html";
-
-
-                  } else {
-                    alertBox.classList.remove("alert-success");
-                    alertBox.classList.add("alert-danger");
-                    alertBox.textContent = JSON.stringify(data);
-                    alertBox.classList.remove("d-none");
-                  }
-
-                });
+                const redirectTo = roleRedirects[data.role];
+                if (redirectTo) {
+                  window.location.href = redirectTo;
+                } else {
+                  console.error("Unknown role returned from login:", data.role);
+                  alertBox.classList.remove("alert-success");
+                  alertBox.classList.add("alert-danger");
+                  alertBox.textContent = "Login succeeded but role is unrecognized.";
+                }
+              } else {
+                alertBox.classList.remove("alert-success");
+                alertBox.classList.add("alert-danger");
+                alertBox.textContent = data.message || "Login failed.";
+                alertBox.classList.remove("d-none");
+              }
+            });
           </script>
 
-            <script>
-              async function loadCategories() {
-                const response = await fetch("http://localhost:8000/api/FrontendHelperRouter/GetCategories");
-                const categories = await response.json();
+          <script>
+            document.getElementById("logoutLink").addEventListener("click", async (event) => {
+              event.preventDefault(); // stop the "#" link from just jumping to top of page
 
-                const select = document.getElementById("categorySelect");
-                categories.forEach((category) => {
-                  const option = document.createElement("option");
-                  option.value = category;
-                  option.textContent = category;
-                  select.appendChild(option);
-                });
-              }
+              await fetch("http://localhost:8000/api/GlobalRoutes/Logout", {
+                method: "POST",
+                credentials: "include" // needed so the browser sends the access_token cookie to be cleared
+              });
 
-              loadCategories();
+              window.location.href = "../login.html";
+            });
 
-            </script>
-
-
+    </script>
 
 
         </div>

@@ -1,19 +1,25 @@
 from logging.config import fileConfig
 import sys, os
+from pathlib import Path
 
 # project root (so "RECSYS_V2_API.Database..." imports resolve)
 sys.path.append(os.getcwd())
+
 # RECSYS_V2_API folder itself (so db.py's bare "from config import ..." resolves)
-from RECSYS_V2_API.Database.db import Base
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "RECSYS_V2_API"))
+
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
 
-# --- ADD THESE ---
 # --- match models.py's import style exactly ---
 from RECSYS_V2_API.Database.db import Base
-from RECSYS_V2_API.config import CONNECTION_URL  # <-- add this
+from RECSYS_V2_API.config import CONNECTION_URL
+# Importing models is REQUIRED - SQLAlchemy only registers a model class onto
+# Base.metadata when its module is actually imported somewhere. Without this
+# import, Base.metadata is empty and autogenerate thinks NO tables should
+# exist, generating DROP TABLE statements for every real table it finds.
+import RECSYS_V2_API.Database.models  # noqa: F401
 # ------------------
 
 # this is the Alembic Config object, which provides

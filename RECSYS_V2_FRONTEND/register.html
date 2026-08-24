@@ -42,9 +42,10 @@
               <input type="password" class="form-control" id="password" placeholder="Password" required>
             </div>
 
-            <select class="form-select" id="categorySelect">
-              <option value="" selected disabled>Select category</option>
-            </select>
+            <div class="mb-3">
+              <label class="form-label">Preferred Categories</label>
+              <div id="categoryCheckboxes"></div>
+            </div>
 
             <div class="mb-3">
               <label for="Age" class="form-label">Age</label>
@@ -54,8 +55,46 @@
             <button type="submit" class="btn btn-primary w-100">Register</button>
           </form>
 
+          <p class="text-center mt-3 mb-0">
+            <a href="login.html">Log in here</a>
+          </p>
 
+
+
+      
           <script>
+
+            async function loadCategories() {
+            const response = await fetch("http://localhost:8000/api/FrontendHelperRouter/GetCategories");
+              const categories = await response.json();
+              const container = document.getElementById("categoryCheckboxes");
+
+              categories.forEach((category) => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "form-check";
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.className = "form-check-input";
+                checkbox.id = `category-${category}`;
+                checkbox.value = category;
+
+                const label = document.createElement("label");
+                label.className = "form-check-label";
+                label.setAttribute("for", `category-${category}`);
+                label.textContent = category;
+
+                wrapper.appendChild(checkbox);
+                wrapper.appendChild(label);
+                container.appendChild(wrapper);
+              });
+            }
+
+            loadCategories();
+
+            </script>
+
+            <script>
               document.getElementById("registerForm").addEventListener("submit", async (event) => {
                   event.preventDefault();
 
@@ -69,7 +108,7 @@
                       Password: document.getElementById("password").value,
                       Gender: "Male",
                       Age: Number(document.getElementById("Age").value),
-                      PreferredCategories: [document.getElementById("categorySelect").value]
+                      PreferredCategories: Array.from(document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked')).map(cb => cb.value)
                     })
                   });
 
@@ -94,23 +133,7 @@
                 });
           </script>
 
-            <script>
-              async function loadCategories() {
-                const response = await fetch("http://localhost:8000/api/FrontendHelperRouter/GetCategories");
-                const categories = await response.json();
-
-                const select = document.getElementById("categorySelect");
-                categories.forEach((category) => {
-                  const option = document.createElement("option");
-                  option.value = category;
-                  option.textContent = category;
-                  select.appendChild(option);
-                });
-              }
-
-              loadCategories();
-
-            </script>
+          
 
 
 

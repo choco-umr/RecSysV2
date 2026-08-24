@@ -21,7 +21,7 @@ np.set_printoptions(threshold=np.inf)
 db = SessionLocal()
 
 def load_data(db: Session):
-    Interactions_data = Select(Interactions)
+    Interactions_data = select(Interactions)
     Content_data = select(Content)
 
     Interactions_df = pd.read_sql(Interactions_data, db.bind)
@@ -69,6 +69,7 @@ class CategoryMeanRecommender(Recommender):
         Raises:
         """
         df = df.drop(columns=["DATASET_NAME", "TITLE", "ARTICLE_TYPE", "TIMESTAMP", "SUB_CATEGORY"]) #remove uneccesary columumns
+        self.df = df
 
         self.categories_vectors = {}
         self.mean_categories_vectors = {}
@@ -103,14 +104,16 @@ class CategoryMeanRecommender(Recommender):
 
         Raises:
         """
+        #istead of comparing to the one user preffered cateogyr vector, average out all preffered categories into one vector
 
-        mean_category_vector = self.mean_categories_vectors[user_preffered_categories]
-        similarity_scores = cosine_similarity(self.tfidf_matrix, mean_category_vector).flatten()
+        category_vectors = [self.mean_categories_vectors[category] for category in user_preffered_categories]
+        final_averaged_category_vector = np.mean(category_vectors, axis=0)
+        similarity_scores = cosine_similarity(self.tfidf_matrix, final_averaged_category_vector).flatten()
 
         top_scores_indicies = similarity_scores.argsort()[::-1] #positions of top decending scores to refer back to original content df
         final_scores = similarity_scores[top_scores_indicies] # get value (scores) for each position in indiices array
 
-        item_ids = df["ITEM_ID"].values   # or df.index.values, if that's your identifier
+        item_ids = self.df["ITEM_ID"].values   # or df.index.values, if that's your identifier
         recommended_ids = item_ids[top_scores_indicies] #get item ids based on score positions 
 
         return recommended_ids

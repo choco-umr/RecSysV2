@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, distinct
 from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies, RBAC
 from Database.db import get_db
-from RECSYS_V2_RECOMMENDER import Base, RContentBasedFiltering
 
 FrontendHelperRouter = APIRouter(prefix='/FrontendHelperRouter')
 

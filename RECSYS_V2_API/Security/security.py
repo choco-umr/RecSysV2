@@ -78,6 +78,10 @@ def generate_userid():
     id = uuid.uuid4()
     return id
 
+def generate_interactionid():
+    id = uuid.uuid4()
+    return id
+
 
 def FileValidator(file: UploadFile) -> None: #2gb
     #filename check
