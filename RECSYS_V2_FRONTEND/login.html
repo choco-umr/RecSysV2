@@ -14,7 +14,7 @@
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
 
-    <div id="alertBox" class="alert alert-danger" role="alert"></div>
+    <div id="alertBox" class="alert alert-danger d-none" role="alert"></div>
     <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
       <div class="card shadow-sm" style="max-width: 480px; width: 100%;">
         <div class="card-body p-4">
@@ -49,13 +49,13 @@
           <script>
               document.getElementById("LoginForm").addEventListener("submit", async (event) => {
               event.preventDefault();
-              const response = await fetch("http://localhost:8000/api/GlobalRoutes/login", {
+              const response = await fetch("http://localhost:8000/api/global_routes/login", {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  Username: document.getElementById("Username").value,
-                  Password: document.getElementById("password").value,
+                  username: document.getElementById("Username").value,
+                  password: document.getElementById("password").value,
                 })
               });
               const data = await response.json();
@@ -85,7 +85,11 @@
               } else {
                 alertBox.classList.remove("alert-success");
                 alertBox.classList.add("alert-danger");
-                alertBox.textContent = data.message || "Login failed.";
+                // FastAPI's default HTTPException error body is {"detail": "..."},
+                // not {"message": "..."} - IncorrectLoginDetails/JWTFound/etc. all
+                // come back that way, so "detail" has to be checked too or every
+                // failure just silently falls through to the generic fallback text.
+                alertBox.textContent = data.message || data.detail || "Login failed.";
                 alertBox.classList.remove("d-none");
               }
             });
@@ -95,7 +99,7 @@
             document.getElementById("logoutLink").addEventListener("click", async (event) => {
               event.preventDefault(); // stop the "#" link from just jumping to top of page
 
-              await fetch("http://localhost:8000/api/GlobalRoutes/Logout", {
+              await fetch("http://localhost:8000/api/global_routes/Logout", {
                 method: "POST",
                 credentials: "include" // needed so the browser sends the access_token cookie to be cleared
               });

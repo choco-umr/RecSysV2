@@ -1,26 +1,31 @@
-from streamlit import error, user
-
-from Schemas.schemas import User_Register_Input, LoginInputSchema
-from Database.models import Users, Researchers, Admins, Content
 from fastapi import Depends, APIRouter, HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import select, distinct
-from Security.security import hash_password, generate_userid, verify_password, create_jwt_token, logout_delete_all_cookies, RBAC
+
+from Schemas.schemas import user_register_input, login_input_schema
+
+from Database.models import Users, Researchers, Admins, Content
 from Database.db import get_db
 
-FrontendHelperRouter = APIRouter(prefix='/FrontendHelperRouter')
+from Security.security import hash_password, generate_user_id, verify_password, create_jwt_token, logout_delete_all_cookies, RBAC
 
-@FrontendHelperRouter.get("/GetCategories")
-async def Register(db: Session = Depends(get_db)):
+frontend_helper_router = APIRouter(prefix='/frontend_helper_router')
 
-    Categories = db.execute(
-    select(distinct(Content.CATEGORY)) #FOR NW GET CATGORIES FOMR AVAILABLE CONTENT NOT CTEGORIES FORM SCHEMAS SINCE SOME WONT BE THERE
+@frontend_helper_router.get("/get_categories")
+async def register(db: Session = Depends(get_db)):
+
+    categories = db.execute(
+    select(distinct(Content.CATEGORY))
     ).scalars().all()
-
-    print(Categories)
     
-    return Categories
+    return categories
 
-@FrontendHelperRouter.get("/WhoAmI")
+@frontend_helper_router.get("/who_am_i")
 async def who_am_i(request: Request, db: Session = Depends(get_db)):
     return RBAC(request, db)
+
+
+# NOTES
+"""
+- get_categories: currently pulling categories from available Content, not from Schemas — some categories may be missing as a result. Revisit later.
+"""

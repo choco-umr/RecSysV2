@@ -1,23 +1,23 @@
-from pydantic import BaseModel, Field, StrictStr, StrictInt, field_validator, model_validator
+from string import punctuation
 from typing import Literal, List
 from uuid import UUID
-from string import punctuation
+
 from fastapi import Form
+from pydantic import BaseModel, Field, StrictStr, StrictInt, field_validator, model_validator
+
 from Security.exceptions import *
 
-from RECSYS_V2_ETL_PIPELINE.T2.Data_Schemas.schemas import available_news_categories, available_news_sub_categories
+class user_register_input(BaseModel):
+    firstname: str = Field(min_length=2, max_length=10)
+    lastname: str = Field(min_length=2, max_length=10)
+    username: str = Field(min_length=2, max_length=25)
+    password: str = Field(min_length=5, max_length=10) 
+    gender: Literal["Male", "Female"]
+    age: int = Field(ge=10, le=100)
+    preferred_categories: List[str] = Field(default_factory=list)
+    preferred_sub_categories: List[str] = Field(default_factory=list)
 
-class User_Register_Input(BaseModel):
-    Firstname: str = Field(min_length=2, max_length=10)
-    Lastname: str = Field(min_length=2, max_length=10)
-    Username: str = Field(min_length=2, max_length=25) # need to be unique  - add check
-    Password: str = Field(min_length=5, max_length=10) 
-    Gender: Literal["Male", "Female"]
-    Age: int = Field(ge=10, le=100)
-    PreferredCategories: List[str] = Field(default_factory=list)
-    PreferredSubCategories: List[str] = Field(default_factory=list)
-
-    @field_validator('Password', mode='after')
+    @field_validator('password', mode='after')
     @classmethod
     def password_check(cls, password: str):
         has_uppercase = any(c.isupper() for c in password)
@@ -29,36 +29,20 @@ class User_Register_Input(BaseModel):
             raise ValueError("Password must special character")
         return password
 
-    @field_validator('PreferredCategories', mode='after')
-    @classmethod
-    def validate_categories(cls, categories: List[str]):
-        invalid = [c for c in categories if c not in available_news_categories]
-        if invalid:
-            raise ValueError(f"Invalid categories: {invalid}")
-        return categories
+        
 
-    @field_validator('PreferredSubCategories', mode='after')
-    @classmethod
-    def validate_sub_categories(cls, sub_categories: List[str]):
-        invalid = [s for s in sub_categories if s not in available_news_sub_categories]
-        if invalid:
-            raise ValueError(f"Invalid sub-categories: {invalid}")
-        return sub_categories
-    
+class login_input_schema(BaseModel):
+    username: str = Field(default='Username here')
+    password: str = Field(default='Password here')
 
 
-class LoginInputSchema(BaseModel):
-    Username: str = Field(default='Username here')
-    Password: str = Field(default='Password here')
+class admin_researcher_register_input(BaseModel):
+    firstname: str = Field(default='John', min_length=2, max_length=10)
+    lastname: str = Field(default='Doe', min_length=2, max_length=10)
+    username: str = Field(min_length=2, max_length=25)
+    password: str = Field(min_length=5, max_length=10) 
 
-
-class AdminResearcher_Register_Input(BaseModel):
-    Firstname: str = Field(default='John', min_length=2, max_length=10)
-    Lastname: str = Field(default='Doe', min_length=2, max_length=10)
-    Username: str = Field(min_length=2, max_length=25) # need to be unique  - add check
-    Password: str = Field(min_length=5, max_length=10) 
-
-    @field_validator('Password', mode='after')
+    @field_validator('password', mode='after')
     @classmethod
     def password_check(cls, password: str):
         has_uppercase = any(c.isupper() for c in password)
@@ -71,13 +55,13 @@ class AdminResearcher_Register_Input(BaseModel):
         
         return password
 
-class Admin_Register_Input(BaseModel):
-    Firstname: str = Field(default='John', min_length=2, max_length=10)
-    Lastname: str = Field(default='Doe', min_length=2, max_length=10)
-    Username: str = Field(min_length=2, max_length=25) # need to be unique  - add check
-    Password: str = Field(min_length=5, max_length=10) 
+class admin_register_input(BaseModel):
+    firstname: str = Field(default='John', min_length=2, max_length=10)
+    lastname: str = Field(default='Doe', min_length=2, max_length=10)
+    username: str = Field(min_length=2, max_length=25)
+    password: str = Field(min_length=5, max_length=10) 
 
-    @field_validator('Password', mode='after')
+    @field_validator('password', mode='after')
     @classmethod
     def password_check(cls, password: str):
         has_uppercase = any(c.isupper() for c in password)
@@ -91,54 +75,56 @@ class Admin_Register_Input(BaseModel):
         return password
 
 
-class AdminDeleteUser_Input(BaseModel):
-    Username: str = Field(min_length=2, max_length=25) # need to be unique  - add check
-    Usernameconfirm: str = Field(min_length=2, max_length=25) # need to be unique  - add check
+class admin_delete_user_input(BaseModel):
+    username: str = Field(min_length=2, max_length=25)
+    usernameconfirm: str = Field(min_length=2, max_length=25)
 
     @model_validator(mode="after")
     def usernames_must_match(self):
-        if self.Username != self.Usernameconfirm:
+        if self.username != self.usernameconfirm:
             raise ValueError("Both usernames must match")
         return self
 
-class DatasetInputSchema(BaseModel):
+class dataset_input_schema(BaseModel):
     #datatset type
-    DatasetType: str
+    dataset_type: str
 
     @model_validator(mode="after")
     def valid_dataset_type(self):
-        if self.DatasetType.title() not in ["Interactions", "Content", "Derived_Users"]: #are we including derived users (after tom meeting)
-            raise UserNotFound() #change to proper error
+        titled = self.dataset_type.title()
+        if titled not in ["Interactions", "Content", "Derived_Users"]:
+            raise invalid_dataset_type()
+        self.dataset_type = titled
         return self
 
     @classmethod
-    def as_form(cls, DatasetType: str = Form(...)):
-        return cls(DatasetType=DatasetType)
+    def as_form(cls, dataset_type: str = Form(...)):
+        return cls(dataset_type=dataset_type)
 
 
-class RecommendorInputSchema(BaseModel):
-    #datatset type
-    ALGORITHM_NAME: str
+class recommendor_input_schema(BaseModel):
+    algorithm_name: str
 
-    # @model_validator(mode="after")
-    # def valid_dataset_type(self):
-    #     if not self.ALGORITHM_NAME.lower().startswith("R"):
-    #         raise ValueError("ALGORITHM_NAME must start with 'R'")
-    #     return self
 
     
-class Store_interactions(BaseModel):
-    ITEM_ID: str
-    INTERACTION_TYPE: str
+class store_interactions(BaseModel):
+    item_id: str
+    interaction_type: str
     
     @model_validator(mode="after")
     def valid_dataset_type(self):
-        normalized = self.INTERACTION_TYPE.lower()
+        normalized = self.interaction_type.lower()
         if normalized not in ["like", "dislike", "report"]:
             raise ValueError("invalid interaction type")
-        self.INTERACTION_TYPE = normalized
+        self.interaction_type = normalized
         return self
 
-#notes
-#ensure uuid is unique (0.001% can de dupe so check error handling)
-#change value errors to hhtp errors?
+# NOTES
+"""
+- username fields (user_register_input, admin_researcher_register_Input, admin_register_input, admin_delete_user_input): need to enforce uniqueness — add a check
+- password_check validators: "Password must contain uppercase" / "Password must have a special character" — convert these ValueErrors to HTTPExceptions
+- admin_delete_user_input.usernames_must_match: convert ValueError to HTTPException
+- dataset_input_schema.valid_dataset_type: convert to a proper HTTPException instead of raising UserNotFound() directly
+- RecommendorInputSchema: commented-out validator requiring algorithm_name to start with "R" — decide whether to keep/remove/re-enable
+- Ensure generated UUIDs are unique (small chance of collision — verify error handling covers this)
+"""

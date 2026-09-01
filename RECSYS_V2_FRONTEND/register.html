@@ -65,7 +65,7 @@
           <script>
 
             async function loadCategories() {
-            const response = await fetch("http://localhost:8000/api/FrontendHelperRouter/GetCategories");
+            const response = await fetch("http://localhost:8000/api/frontend_helper_router/get_categories");
               const categories = await response.json();
               const container = document.getElementById("categoryCheckboxes");
 
@@ -98,17 +98,17 @@
               document.getElementById("registerForm").addEventListener("submit", async (event) => {
                   event.preventDefault();
 
-                  const response = await fetch("http://localhost:8000/api/UserRoutes/register", {
+                  const response = await fetch("http://localhost:8000/api/user_routes/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                      Firstname: document.getElementById("Firstname").value,
-                      Lastname: document.getElementById("Lastname").value,
-                      Username: document.getElementById("Username").value,
-                      Password: document.getElementById("password").value,
-                      Gender: "Male",
-                      Age: Number(document.getElementById("Age").value),
-                      PreferredCategories: Array.from(document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked')).map(cb => cb.value)
+                      firstname: document.getElementById("Firstname").value,
+                      lastname: document.getElementById("Lastname").value,
+                      username: document.getElementById("Username").value,
+                      password: document.getElementById("password").value,
+                      gender: "Male",
+                      age: Number(document.getElementById("Age").value),
+                      preferred_categories: Array.from(document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked')).map(cb => cb.value)
                     })
                   });
 

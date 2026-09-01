@@ -1,7 +1,10 @@
-import pandas as pd
 import logging
 import os
-from ..exceptions import EmptyCSV
+
+import pandas as pd
+
+from RECSYS_V2_API.Security.exceptions import *
+
 logger = logging.getLogger(__name__)
 
 """
@@ -21,7 +24,7 @@ Notes:
 Do we really need to check first 5 lines? or just ensure the file is there and leave that to schema validation?
 """
 
-def STEP1_FILE_LOADING(path):
+def file_loading(path):
     logger.info("Locating uploaded file")
 
     #check path exists
@@ -34,10 +37,16 @@ def STEP1_FILE_LOADING(path):
     try:
         df = pd.read_csv(path)
     except pd.errors.EmptyDataError:
-        raise EmptyCSV()
+        raise empty_csv()
     except Exception as e:
         raise ValueError("Invalid CSV file: ", e)
 
     logger.info(f"File loaded, {len(df)} rows")
 
     return df
+
+
+# NOTES
+"""
+- TODO: replace the generic ValueError("Invalid CSV file") with a proper exception class
+"""

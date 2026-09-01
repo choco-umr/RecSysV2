@@ -1,9 +1,11 @@
+import logging
+
+import pandas as pd
 from fastapi import Depends
 from sqlalchemy.orm import Session
-import pandas as pd
-import logging
-from Database.models import Interactions, Content
 from sqlalchemy.dialects.postgresql import insert
+
+from Database.models import Interactions, Content
 
 logger = logging.getLogger(__name__)
 

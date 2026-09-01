@@ -1,22 +1,19 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
-PASSWORD = os.getenv("PASSWORD")
-HOST = os.getenv("HOST")
-PORT = os.getenv("PORT")
-DATABASE = os.getenv("DATABASE")
-USER = os.getenv("USER")
-
-CONNECTION_URL = f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
-
-MEMORY_COST = os.getenv("MEMORY_COST")
-TIME_COST = os.getenv("TIME_COST")
-PARALLELISM = os.getenv("PARALLELISM")
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
-EXPIRY_TIME = os.getenv("EXPIRY_TIME")
-
-
-MAX_FILE_SIZE = os.getenv("MAX_FILE_SIZE")
+password = os.getenv("password")
+host = os.getenv("host")
+port = os.getenv("port")
+database = os.getenv("database")
+user = os.getenv("user")
+connection_url = f"postgresql://{user}:{password}@{host}:{port}/{database}"
+memory_cost = os.getenv("memory_cost")
+time_cost = os.getenv("time_cost")
+parallelism = os.getenv("parallelism")
+secret_key = os.getenv("secret_key")
+algorithm = os.getenv("algorithm")
+expiry_time = os.getenv("expiry_time")
+max_file_size = os.getenv("max_file_size")

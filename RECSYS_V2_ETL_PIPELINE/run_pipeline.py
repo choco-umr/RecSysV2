@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 
-from .T2.T2_STEP1_FILE_CHECKS import STEP1_FILE_LOADING
+from .T2.T2_STEP1_FILE_CHECKS import file_loading
 from .T2.T2_STEP2_SCHEMA_VALIDATION import dataset_schema_validation
 from .T2.T2_STEP3_INSERT_DATASET import remove_duplicates_and_insert
 
@@ -29,10 +29,12 @@ Output:
 def run_etl_pipeline(file_path: str, dataset_type: str):
     logger.info("Datatset Upload Pipeline started")
 
-    loaded_df = loading_file = STEP1_FILE_LOADING(file_path)
+    loaded_df = loading_file = file_loading(file_path)
 
     validate_dataset_schema = dataset_schema_validation(loaded_df, dataset_type)
 
     remove_duplicate_lines = remove_duplicates_and_insert(validate_dataset_schema, dataset_type, db)
+
+    return remove_duplicate_lines
 
 

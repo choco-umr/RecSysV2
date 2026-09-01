@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Recommender(ABC):
+class recommender(ABC):
 	@abstractmethod
 	def fit(self, data):
 		pass

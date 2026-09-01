@@ -1,14 +1,10 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Float, BigInteger
-from .db import Base
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import validates, relationship
 import uuid
-from sqlalchemy import UniqueConstraint
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Boolean
-from sqlalchemy import Column, String, Boolean, DateTime, Float, ForeignKey, UniqueConstraint
+
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Float, BigInteger, Boolean, UniqueConstraint
+from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.orm import validates, relationship, Mapped, mapped_column
+
+from .db import Base
 
 class Users(Base):
     __tablename__ = "Users"
@@ -17,8 +13,8 @@ class Users(Base):
     LAST_NAME = Column("LAST_NAME", String, nullable=False)
     USERNAME = Column("USERNAME", String, nullable=False)
     PASSWORD = Column("PASSWORD", String)
-    GENDER = Column("GENDER",Integer, nullable=False) #need to make it enum?
-    AGE = Column("AGE", Integer) #add validation for between 1-100
+    GENDER = Column("GENDER",Integer, nullable=False) 
+    AGE = Column("AGE", Integer)
     PREFERRED_CATEGORIES: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
     PREFERRED_SUB_CATEGORIES: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=True)
     
@@ -47,7 +43,7 @@ class Admins(Base):
 class Content(Base):
     __tablename__ = "Content"
     DATASET_NAME = Column(String, nullable=True)
-    ITEM_ID = Column(String, nullable=False, primary_key=True) #will need to change from uuid later see user id in interactions table 
+    ITEM_ID = Column(String, nullable=False, primary_key=True)
     CATEGORY = Column(String)
     SUB_CATEGORY = Column(String)
     TITLE = Column(String, nullable=False)
@@ -67,17 +63,17 @@ class Content(Base):
 class Interactions(Base):
     __tablename__ = "Interactions"
     DATASET_NAME = Column(String, nullable=False)
-    INTERACTION_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4) #has to be str and not uuid since items cna be upoaded and they wont be uuids
+    INTERACTION_ID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
 
-    USER_ID = Column(String, nullable=False) #has to be str and not uuid since items cna be upoaded and they wont be uuids
-    ITEM_ID = Column(String, nullable=False) #has to be str and not uuid since items cna be upoaded and they wont be uuids
+    USER_ID = Column(String, nullable=False)
+    ITEM_ID = Column(String, nullable=False)
 
     TIMESTAMP = Column(DateTime)
     INTERACTION_TYPE = Column(String, nullable=False)
     READ_TIME = Column(Float, nullable=True)
     SCROLL_PERCENTAGE = Column(Float, nullable=True)
-    ALGORITHM_USED = Column(String, ForeignKey("RecommendorAlgorithms.ALGORITHM_NAME"), nullable=True) #has to be alg name from recommder algortihms tablwe
+    ALGORITHM_USED = Column(String, ForeignKey("RecommendorAlgorithms.ALGORITHM_NAME"), nullable=True)
 
     __table_args__ = (
         UniqueConstraint(
@@ -94,28 +90,14 @@ class RecommendorAlgorithms(Base):
     TIMESTAMP_END = Column(DateTime)
 
 
-
-
-
-
-
-
-# class Dataset_Upload_Tracking(Base):
-#     __tablename__ = "Dataset_Upload_Tracking"
-
-#     UPLOAD_ID = Column(UUID)
-#     FILENAME = Column(String)
-#     DATASET_TYPE = Column(String)
-#     UPLOADED_BY_USER_ID = Column(UUID)
-#     UPLOADED_AT = Column(DateTime(timezone=True))
-#     FILE_SIZE = Column(BigInteger) #FIX THIS
-#     ROW_COUNT = Column(Integer, nullable=True) # how are we going to get this
-#     UPLOAD_STATUS = Column(String)  # Uploaded or Failed
-
-#     # we already validate dataset type in schema and we validate fiel extension and file size in security
-
-
-
-
-#TO/DO
-#global password strength function - https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
+#NOTES
+"""
+GENDER: need to make it enum?
+AGE: add validation for between 1-100
+ITEM_ID (Content): will need to change from uuid later see user id in interactions table
+INTERACTION_ID: has to be str and not uuid since items can be uploaded and they won't be uuids
+USER_ID (Interactions): has to be str and not uuid since items can be uploaded and they won't be uuids
+ITEM_ID (Interactions): has to be str and not uuid since items can be uploaded and they won't be uuids
+ALGORITHM_USED: has to be alg name from recommender algorithms table
+Database relationships need to be added
+"""

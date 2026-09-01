@@ -1,11 +1,12 @@
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from config import CONNECTION_URL
+
+from config import connection_url
 
 Base = declarative_base()
 
-engine = create_engine(CONNECTION_URL)
+engine = create_engine(connection_url)
 SessionLocal = sessionmaker(bind=engine)
 
 def init_db():

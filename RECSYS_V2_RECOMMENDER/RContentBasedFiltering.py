@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from RECSYS_V2_RECOMMENDER.Base import Recommender
+from RECSYS_V2_RECOMMENDER.Base import recommender
 from RECSYS_V2_API.Database.db import SessionLocal
 from RECSYS_V2_API.Database.models import Interactions, Content
 
@@ -46,7 +46,7 @@ Returns:
 Raises:
 """
 
-class CategoryMeanRecommender(Recommender):
+class CategoryMeanRecommender(recommender):
     def __init__(self):
         self.vectorizer = None
         self.categories_vectors = None

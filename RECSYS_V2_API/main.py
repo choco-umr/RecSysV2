@@ -1,17 +1,27 @@
-from Database.db import init_db
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from Routes.UserRoutes import UserRouter
-from Routes.TestingRoutes import TestingRouter
-from Routes.GlobalRoutes import GlobalRouter
-from Routes.ResearcherRoutes import ResearcherRouter
-from Routes.AdminRoutes import AdminRouter
-from Routes.FrontendHelperRoutes import FrontendHelperRouter
 import logging
-from fastapi import Request
+import os
+import sys
+
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+_project_root = os.path.dirname(_this_dir)
+for _path in (_project_root, _this_dir):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
+
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
+from Database.db import init_db
+
+from Routes.UserRoutes import user_router as user_router
+from Routes.GlobalRoutes import global_router as global_router
+from Routes.ResearcherRoutes import researcher_router as researcher_router
+from Routes.AdminRoutes import admin_router as admin_router
+from Routes.FrontendHelperRoutes import frontend_helper_router as frontend_helper_router
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -20,14 +30,14 @@ logging.basicConfig(
     force=True)
 
 
-#initialise the db on startup
+# initialise the db on startup
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
     yield
 
-app = FastAPI(lifespan=lifespan)
 
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -38,14 +48,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.include_router(GlobalRouter, prefix="/api", tags=["Global"])
-app.include_router(UserRouter, prefix="/api", tags=["Users"])
-app.include_router(ResearcherRouter, prefix="/api", tags=["Researchers"])
-app.include_router(AdminRouter, prefix="/api", tags=["Admin"])
-app.include_router(TestingRouter, prefix="/api", tags=["Testing"])
-app.include_router(FrontendHelperRouter, prefix="/api", tags=["FrontendHelper"])
-
+app.include_router(global_router, prefix="/api", tags=["Global"])
+app.include_router(user_router, prefix="/api", tags=["Users"])
+app.include_router(researcher_router, prefix="/api", tags=["Researchers"])
+app.include_router(admin_router, prefix="/api", tags=["Admin"])
+app.include_router(frontend_helper_router, prefix="/api", tags=["FrontendHelper"])
 
 
 @app.exception_handler(RequestValidationError)

@@ -1,7 +1,9 @@
-import pandera.pandas as pa
 import logging
+
+import pandera.pandas as pa
+
 from .Data_Schemas.schemas import dataset_schema_mapping
-from ..exceptions import SchemaValidationError
+from RECSYS_V2_API.Security.exceptions import schema_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +33,7 @@ def dataset_schema_validation(df, dataset_type):
         logger.info("dataset schema validation complete")
         return schema_validated_dataset
     except (pa.errors.SchemaError, pa.errors.SchemaErrors) as e:
-        logger.exception("Schema error") #CLEAN UP (SEE TO/DO)
-        raise SchemaValidationError(e) #CLEAN UP (SEE TO/DO)
+        logger.exception("Schema error")
+        raise schema_validation_error(e)
 
 

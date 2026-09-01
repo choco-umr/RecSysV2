@@ -197,9 +197,10 @@
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="../bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../common.js"></script>
 
     <script>
-      const API_BASE = "http://localhost:8000/api/ResearcherRoutes";
+      const API_BASE = "http://localhost:8000/api/researcher_routes";
 
       function showAlert(boxId, message, isSuccess) {
         const box = document.getElementById(boxId);
@@ -216,10 +217,10 @@
 
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
-        formData.append("DatasetType", datasetType);
+        formData.append("dataset_type", datasetType);
 
         try {
-          const response = await fetch(`${API_BASE}/DatasetUpload`, {
+          const response = await authFetch(`${API_BASE}/dataset_upload`, {
             method: "POST",
             credentials: "include",
             body: formData // no Content-Type header - browser sets multipart boundary automatically
@@ -241,11 +242,11 @@
         event.preventDefault();
         const algorithmName = document.getElementById("algorithmName").value;
         try {
-          const response = await fetch(`${API_BASE}/ChooseRecommenderAlgorithm`, {
+          const response = await authFetch(`${API_BASE}/choose_recommender_algorithm`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ALGORITHM_NAME: algorithmName })
+            body: JSON.stringify({ algorithm_name: algorithmName })
           });
           const data = await response.json();
           if (response.ok) {
@@ -262,7 +263,7 @@
       async function loadInteractionTypeBreakdown() {
         const tbody = document.getElementById("interactionTypeTableBody");
         try {
-          const response = await fetch(`${API_BASE}/IntractionTypeBreakdown`, { credentials: "include" });
+          const response = await authFetch(`${API_BASE}/intraction_type_breakdown`, { credentials: "include" });
           const data = await response.json();
           tbody.innerHTML = "";
           if (!data.length) {
@@ -282,7 +283,7 @@
       // ---- Interaction Density ----
       async function loadInteractionDensity() {
         try {
-          const response = await fetch(`${API_BASE}/InteractionDensity`, { credentials: "include" });
+          const response = await authFetch(`${API_BASE}/interaction_density`, { credentials: "include" });
           const data = await response.json();
           document.getElementById("avgInteractionsPerItem").textContent =
             typeof data.average_interactions_per_item === "number"
@@ -302,7 +303,7 @@
       async function loadInteractionVolume() {
         const tbody = document.getElementById("weeklyVolumeTableBody");
         try {
-          const response = await fetch(`${API_BASE}/InteractionDataTimeRange`, { credentials: "include" });
+          const response = await authFetch(`${API_BASE}/interaction_data_time_range`, { credentials: "include" });
           const data = await response.json();
           tbody.innerHTML = "";
           const weekly = data.interaction_volume_by_week || [];
@@ -325,7 +326,7 @@
       async function loadAlgorithmStats() {
         const tbody = document.getElementById("algorithmStatsTableBody");
         try {
-          const response = await fetch(`${API_BASE}/RecommendorAlgorithmsInteractionStatistics`, { credentials: "include" });
+          const response = await authFetch(`${API_BASE}/recommendor_algorithms_interaction_statistics`, { credentials: "include" });
           const data = await response.json();
           tbody.innerHTML = "";
           const stats = data.algorithm_stats || [];
@@ -359,7 +360,7 @@
         const subcategoryBody = document.getElementById("subcategoryTableBody");
         const articleTypeBody = document.getElementById("articleTypeTableBody");
         try {
-          const response = await fetch(`${API_BASE}/Content_distribution`, { credentials: "include" });
+          const response = await authFetch(`${API_BASE}/Content_distribution`, { credentials: "include" });
           const data = await response.json();
 
           categoryBody.innerHTML = "";
@@ -392,7 +393,7 @@
       // ---- Logout ----
       document.getElementById("logoutLink").addEventListener("click", async (event) => {
         event.preventDefault();
-        await fetch("http://localhost:8000/api/GlobalRoutes/Logout", {
+        await fetch("http://localhost:8000/api/global_routes/Logout", {
           method: "POST",
           credentials: "include"
         });

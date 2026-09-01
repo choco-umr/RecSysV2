@@ -115,6 +115,7 @@
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="../bootstrap-5.0.2-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../common.js"></script>
 
     <script>
       function showAlert(boxId, message, isSuccess) {
@@ -127,15 +128,15 @@
       document.getElementById("AdminRegisterForm").addEventListener("submit", async (event) => {
         event.preventDefault();
         try {
-          const response = await fetch("http://localhost:8000/api/AdminRoutes/AdminRegister", {
+          const response = await authFetch("http://localhost:8000/api/admin_routes/admin_register", {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              Firstname: document.getElementById("adminFirstname").value,
-              Lastname: document.getElementById("adminLastname").value,
-              Username: document.getElementById("adminUsername").value,
-              Password: document.getElementById("adminPassword").value,
+              firstname: document.getElementById("adminFirstname").value,
+              lastname: document.getElementById("adminLastname").value,
+              username: document.getElementById("adminUsername").value,
+              password: document.getElementById("adminPassword").value,
             })
           });
           const data = await response.json();
@@ -153,15 +154,15 @@
       document.getElementById("ResearcherRegisterForm").addEventListener("submit", async (event) => {
         event.preventDefault();
         try {
-          const response = await fetch("http://localhost:8000/api/AdminRoutes/ResearcherRegister", {
+          const response = await authFetch("http://localhost:8000/api/admin_routes/researcher_register", {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              Firstname: document.getElementById("researcherFirstname").value,
-              Lastname: document.getElementById("researcherLastname").value,
-              Username: document.getElementById("researcherUsername").value,
-              Password: document.getElementById("researcherPassword").value,
+              firstname: document.getElementById("researcherFirstname").value,
+              lastname: document.getElementById("researcherLastname").value,
+              username: document.getElementById("researcherUsername").value,
+              password: document.getElementById("researcherPassword").value,
             })
           });
           const data = await response.json();
@@ -180,12 +181,12 @@
         event.preventDefault();
         const username = document.getElementById("deleteUsername").value;
         try {
-          const response = await fetch("http://localhost:8000/api/AdminRoutes/DeleteUser", {
+          const response = await authFetch("http://localhost:8000/api/admin_routes/delete_user", {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              Username: username
+              username: username
             })
           });
           const data = await response.json();
@@ -202,7 +203,7 @@
 
       document.getElementById("logoutLink").addEventListener("click", async (event) => {
         event.preventDefault();
-        await fetch("http://localhost:8000/api/GlobalRoutes/Logout", {
+        await fetch("http://localhost:8000/api/global_routes/Logout", {
           method: "POST",
           credentials: "include"
         });
