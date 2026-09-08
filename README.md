@@ -1,7 +1,5 @@
 # RecSysV2
 
-RecSysV2 is a recommender-system platform built for Ofcom as a BSc Digital and Technology Solutions degree apprenticeship Major Project. It ingests news-interaction datasets (MIND and EB-NeRD), serves personalised content recommendations, and exposes role-based Admin, Researcher, and User functionality through a FastAPI backend and an HTML/CSS/JS/Bootstrap frontend.
-
 ## Architecture
 
 The project is split into four top-level components:
@@ -52,13 +50,27 @@ RECSYS_V2_RECOMMENDER/
 
 ## Setup
 
-1. Create a Python virtual environment and install the project's runtime dependencies (FastAPI, SQLAlchemy, psycopg2-binary, pydantic, pyjwt, argon2-cffi, pandera, pandas, numpy, scikit-learn, python-dotenv, alembic).
-2. Create a `.env` file in `RECSYS_V2_API/` defining: `PASSWORD`, `HOST`, `PORT`, `DATABASE`, `USER` (Postgres connection details), `MEMORY_COST`, `TIME_COST`, `PARALLELISM` (Argon2 cost parameters), `SECRET_KEY`, `ALGORITHM`, `EXPIRY_TIME` (JWT settings), and `MAX_FILE_SIZE` (upload size limit in bytes).
-3. Run Alembic migrations to create the database schema (`alembic upgrade head`), or call `init_db()` directly for a quick local setup.
-4. Run the API from the `RECSYS_V2_API` directory (e.g. `uvicorn main:app --reload`).
+1. Create a Python virtual environment and install the project's requirements.txt 
+
+2. Create a `.env` file in `RECSYS_V2_API/` defining:
+
+`PASSWORD`, 
+`HOST`, 
+`PORT`, 
+`DATABASE`, 
+`USER`, 
+`MEMORY_COST`, 
+`TIME_COST`, 
+`PARALLELISM`, 
+`SECRET_KEY`,
+`ALGORITHM`,
+`EXPIRY_TIME`,
+`MAX_FILE_SIZE`
+
+3. Run the API from the `RECSYS_V2_API` directory through CMD: `uvicorn main:app --reload`
+
+4. Run the frontend from the `RECSYS_V2_FRONTEND` directory through CMD: npx browser-sync start --server --files "*.html, *.css, *.js, bootstrap-5.0.2-dist/**/*" --startPath "/login.html"
 
 ## Testing
 
-Automated unit and API-route tests live in `/TESTING` and are run with pytest. They cover Security, the ETL pipeline, the recommender, and one representative API route per user type (Admin, Researcher, User) using mocked database sessions and a mocked `RBAC()` check — no real Postgres instance or running API server is required. See `TESTING/README.md` for full details, including five real defects the suite uncovered while it was being written (three of them in the routes layer).
-
-Manual black-box testing was carried out against the SRS at the end of each development iteration, and a stakeholder-facing end-to-end test plan covering the whole system was produced separately (see `LocalFiles/Testing`) as its own iteration in the project's hybrid Agile iterative SDLC. The automated suite in `/TESTING` complements that manual testing; it does not replace it, since the manual and end-to-end testing exercise cross-module and UI behaviour that the automated suite deliberately does not (see "What isn't covered" below).
+Automated unit and API-route tests live in `/TESTING` and are run with pytest. They cover Security, the ETL pipeline, the recommender, and one representative API route per user type (Admin, Researcher, User) using mocked database sessions and a mocked `RBAC()` function.

@@ -5,7 +5,6 @@ RECSYS_V2_API/.env
 /venv
 LocalFiles/
 /LocalFiles
-RECSYS_V2_FRONTEND/bootstrap-5.0.2-dist
 Alembic/
 alembic.ini
 RecSys V2 Gantt.xlsx
