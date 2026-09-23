@@ -50,27 +50,45 @@ RECSYS_V2_RECOMMENDER/
 
 ## Setup
 
-1. Create a Python virtual environment and install the project's requirements.txt 
+The following instructions can be used to run the application locally:
 
-2. Create a `.env` file in `RECSYS_V2_API/` defining:
+1.	Open a command prompt and navigate to the project root directory.
+2.	Create a Python virtual environment:
+•	python -m venv venv
 
-`PASSWORD`, 
-`HOST`, 
-`PORT`, 
-`DATABASE`, 
-`USER`, 
-`MEMORY_COST`, 
-`TIME_COST`, 
-`PARALLELISM`, 
-`SECRET_KEY`,
-`ALGORITHM`,
-`EXPIRY_TIME`,
-`MAX_FILE_SIZE`
+2.1	Activate the virtual environment:
+•	venv\Scripts\activate
+3.	Install the required project dependencies:
+•	pip install -r requirements.txt
 
-3. Run the API from the `RECSYS_V2_API` directory through CMD: `uvicorn main:app --reload`
+4.	Create a .env file within the RECSYS_V2_API directory containing the required database, authentication, and application configuration variables.
+•	password=<database_password>
+•	host=<database_host>
+•	port=<database_port>
+•	database=<database_name>
+•	user=<database_user>
+•	memory_cost=<argon2_memory_cost>
+•	time_cost=<argon2_time_cost>
+ parallelism=<argon2_parallelism>
+•	secret_key=<jwt_secret_key>
+•	algorithm=<jwt_algorithm>
+•	expiry_time=<jwt_expiry_time>
+•	max_file_size=<maximum_upload_size>
 
-4. Run the frontend from the `RECSYS_V2_FRONTEND` directory through CMD: npx browser-sync start --server --files "*.html, *.css, *.js, bootstrap-5.0.2-dist/**/*" --startPath "/login.html"
+5.	Navigate to the API directory:
+•	cd RECSYS_V2_API
+       5.1 Run the backend FastAPI application:
+•	uvicorn main:app --reload
+5.2 The backend should now be running on:
+•	http://127.0.0.1:8000
+•	Or for the Swagger docs: http://127.0.0.1:8000/docs
 
-## Testing
+6.	Run the frontend
+•	npx browser-sync start --server --files "*.html, *.css, *.js, bootstrap-5.0.2-dist/**/*" --startPath "/login.html"
+6.1. The frontend should now be running on:
+•	http://127.0.0.1:3000
 
-Automated unit and API-route tests live in `/TESTING` and are run with pytest. They cover Security, the ETL pipeline, the recommender, and one representative API route per user type (Admin, Researcher, User) using mocked database sessions and a mocked `RBAC()` function.
+Running Automated Tests
+Automated tests are provided within the TESTING directory and can be executed using:
+•	pytest within /TESTING folder
+The automated test suite covers the API routes, security functionality, role-based access control, ETL pipeline functionality, and recommendation framework components.
